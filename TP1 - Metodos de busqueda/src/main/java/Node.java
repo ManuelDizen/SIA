@@ -68,6 +68,14 @@ public class Node {
     public int hashCode() {
         return Objects.hash(state, depth);
     }
+
+    public void setParent(Node parent) {
+        this.parent = parent;
+    }
+
+    public Node getParent() {
+        return this.parent;
+    }
 }
 // BPA es BFS
 class SortByBFS implements Comparator<Node> {

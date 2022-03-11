@@ -14,7 +14,7 @@ import java.util.Queue;
 public class SearchMethods {
 
 
-    private State firstState;
+    private State firstState = new State(COMPLETE_TOWER, EMPTY_TOWER, EMPTY_TOWER);
     private Node firstNode;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
@@ -25,28 +25,54 @@ public class SearchMethods {
 
     private State objectiveState = new State(EMPTY_TOWER, EMPTY_TOWER, COMPLETE_TOWER);
 
-    private void setFirstState() {
-        firstState = new State(COMPLETE_TOWER, EMPTY_TOWER, EMPTY_TOWER);
+    private Node setFirstNode() {
         firstNode = new Node(firstState, 0, 0);
+        firstNode.setParent(null);
+        return firstNode;
     }
 
 
-    public LinkedList Search (Node firstNode, State firstState, Methods method){
+    public returnNode Search (Node firstNode, State firstState, Method method){
 
         tree.add(firstNode);
         leaves.add(firstNode);
+
+        int currentDepth = 0;
 
         while (!leaves.isEmpty()) {
             Node current = leaves.getFirst();
             leaves.remove(current);
             if (!explored.contains(current))
                 explored.add(current);
-            if(current.getState().equals(objectiveState))
-                return tree;
+            if(current.getState().equals(objectiveState)) {
+                Node aux = current.getParent();
+                StringBuilder s = new StringBuilder(current.getState().toString());
+                int i = 0;
+                while(aux != null){
+                    s.insert(0, aux.getState().toString() + " --> ");
+                    aux = aux.getParent();
+                    if(i++ % 4 == 0){
+                        s.insert(0, "\n");
+                    }
+                }
+                System.out.println("Estados desde inicial a objetivo: \n");
+                System.out.println(s);
+                return new returnNode(explored.size(), leaves.size(), current.getDepth(),
+                        current.getDepth(), true, s.toString());
+            }
             /*Evaluar nodos que se guardan en leaves*/
-            LinkedList<State> possible = checkPossibleDescendants(current.getState());
-            tree.addAll(possible);
-            leaves.addAll(possible);
+            LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
+            //possible son los estados posibles, hay que crear un nodo por cada estado posible.
+            //tree.addAll(possible);
+            //leaves.addAll(possible);
+
+            for(State s : possible){
+                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                current.addToDescendants(aux);
+                aux.setParent(current);
+                tree.add(aux);
+                leaves.add(aux);
+            }
 
             switch (method){
                 case BPA:
@@ -54,24 +80,27 @@ public class SearchMethods {
                 case BPP:
                     leaves.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
                 case BPPV:
-                    leaves = sortBPPV(leaves);
+                    leaves = sortByBPPV(leaves);
             }
-
+            currentDepth = current.getDepth();
 
         }
+        /*TODO: Aca falta que, si es BPPV, se actualize el depth y arranque de vuelta a buscar.
+        */
 
-        return null;
+        System.out.printf("No se encontraron soluciones despues de evaluar %d niveles.%n", currentDepth);
+        return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
     }
 
-    private LinkedList<State> checkPossibleDescendants(State current) {
+    private LinkedList<State> checkPossibleDescendants(State current, Method alg, Node currentN) {
 
         LinkedList<State> toReturn = new LinkedList<>();
         State newState1;
         State newState2;
 
         if(isInitialState(current)){
-            newState1 = new State(COMPLETE_TOWER/10, 1, EMPTY_TOWER);
-            newState2 = new State(COMPLETE_TOWER/10, EMPTY_TOWER, 1);
+            newState1 = new State(remove(COMPLETE_TOWER), 1, EMPTY_TOWER);
+            newState2 = new State(remove(COMPLETE_TOWER), EMPTY_TOWER, 1);
             toReturn.add(newState1);
             toReturn.add(newState2);
             return toReturn;
@@ -104,18 +133,6 @@ public class SearchMethods {
         long peekSecond = current.getTower(1);
         long peekThird = current.getTower(2);
 
-        int hasOne;
-
-        if(peekFirst == 1){
-            hasOne = 0;
-        }
-        else if(peekSecond == 1){
-            hasOne = 1;
-        }
-        else{
-            hasOne = 2;
-        }
-
         State newState3;
         // Not in initial state --> Procedo a revisar
         if(peekFirst < peekSecond){ // 1 < 2
@@ -132,7 +149,7 @@ public class SearchMethods {
             }
             else{ // 1 < 2 y 1 >= 3  ==>  3 < 1 < 2
                 newState1 = new State(remove(peekFirst), add(peekSecond, peekFirst), peekThird);
-                newState2 = new State(peekFirst, add(peekSecond, peekThird), peekThird);
+                newState2 = new State(peekFirst, add(peekSecond, peekThird), remove(peekThird));
                 newState3 = new State(add(peekFirst, peekThird), peekSecond, remove(peekThird));
             }
         }
@@ -157,12 +174,29 @@ public class SearchMethods {
         toReturn.add(newState2);
         toReturn.add(newState3);
 
-        /* Chequear que nodos estan en explorados */
-        for(State s : toReturn){
-            if(explored.contains(s)){
-                toReturn.remove(s);
+        int currentDepth = currentN.getDepth();
+        boolean isBPPV = alg.equals(Method.BPPV);
+        for(Node n : explored){
+            for(State s : toReturn){
+                if(s.equals(n.getState())){
+                    if(isBPPV){
+                        if(currentDepth + 1 >= n.getDepth()){
+                            toReturn.remove(s);
+                        }
+                    }
+                    else{
+                        toReturn.remove(s);
+                    }
+                }
             }
         }
+        /*
+            NEcesito: COnseguir estados de nodos. Comparar esos estados de nodos con
+            mis candidatos. Si metodo es BPPV, comparar profundidad. Si es < profundidad del
+            nodo explorado, lo encolo igual (porque la solución se puede llegar a encontrar en
+            una menor prof). Si es >= remuevo.
+            Si es BPA o BPPV, remuevo directamente.
+         */
 
         return toReturn;
     }
@@ -184,9 +218,82 @@ public class SearchMethods {
         LinkedList<Node> aux = new LinkedList<>();
         int currentDepth = MAX_DEPTH;
         for (Node node : list){
-            if < (node.getDepth())
+            if (1>node.getDepth()){}; //terminar
         }
         return aux;
+    }
+
+    private State getFirstState(){
+        return this.firstState;
+    }
+
+    public static void main(String[] args) {
+        long initialTime = System.currentTimeMillis();
+        System.out.println("hola\n");
+
+        State s = getFirstState();
+        Node i = setFirstNode();
+
+        returnNode n = Search(i, s, Method.BPA);
+
+        long endingTime = System.currentTimeMillis();
+        long totalTime = (endingTime - initialTime)/1000;
+        StringBuilder str = new StringBuilder();
+        str.append("Resultados: \n").append("Tiempo de ejecución: "). append(totalTime).append("\n");
+        str.append("Encontro solución: ").append(n.getResult()).append("\n");
+        if(n.getResult()) {
+            str.append("Solución: ").append(n.getSolution()).append("\n");
+            str.append("Costo de solución: ").append(n.getCost()).append("\n");
+            str.append("Profundidad de solución: ").append(n.getDepth()).append("\n");
+        }
+        str.append("Nodos expandidos: ").append(n.getExpandedNodes()).append("\n");
+        str.append("Nodos frontera: ").append(n.getFrontierNodes()).append("\n");
+        System.out.println(str.toString());
+    }
+
+
+
+    public static class returnNode{
+        private final int expandedNodes;
+        private final int frontierNodes;
+        private final int cost;
+        private final int depth;
+        private final boolean result;
+        private final String solution;
+
+        public returnNode(int expandedNodes, int frontierNodes, int cost, int depth,
+        boolean result, String solution){
+            this.expandedNodes = expandedNodes;
+            this.frontierNodes = frontierNodes;
+            this.cost = cost;
+            this.depth = depth;
+            this.result = result;
+            this.solution = solution;
+        }
+
+        public int getExpandedNodes() {
+            return expandedNodes;
+        }
+
+        public int getFrontierNodes() {
+            return frontierNodes;
+        }
+
+        public int getCost() {
+            return cost;
+        }
+
+        public int getDepth() {
+            return depth;
+        }
+
+        public boolean getResult() {
+            return result;
+        }
+
+        public String getSolution() {
+            return solution;
+        }
     }
 
 }

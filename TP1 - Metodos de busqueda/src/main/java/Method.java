@@ -1,5 +1,6 @@
-public enum Methods {
+public enum Method {
     BPA,
     BPP,
     BPPV
 }
+
