@@ -4,12 +4,9 @@
  * se ejecutan todas las acciones válidas, generando nuevos estados, chequeando que no sean repetidos y generando nodos
  * también se tiene que chequear si ganaste */
 
-import sun.awt.image.ImageWatched;
-
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Queue;
+import java.util.function.Function;
 
 public class SearchMethods {
 
@@ -32,7 +29,7 @@ public class SearchMethods {
     }
 
 
-    public returnNode Search (Node firstNode, State firstState, Method method){
+    public returnNode SearchUninformed(Node firstNode, State firstState, Method method){
 
         tree.add(firstNode);
         leaves.add(firstNode);
@@ -45,20 +42,7 @@ public class SearchMethods {
             if (!explored.contains(current))
                 explored.add(current);
             if(current.getState().equals(objectiveState)) {
-                Node aux = current.getParent();
-                StringBuilder s = new StringBuilder(current.getState().toString());
-                int i = 0;
-                while(aux != null){
-                    s.insert(0, aux.getState().toString() + " --> ");
-                    aux = aux.getParent();
-                    if(i++ % 4 == 0){
-                        s.insert(0, "\n");
-                    }
-                }
-                System.out.println("Estados desde inicial a objetivo: \n");
-                System.out.println(s);
-                return new returnNode(explored.size(), leaves.size(), current.getDepth(),
-                        current.getDepth(), true, s.toString());
+                return printObjective(current);
             }
             /*Evaluar nodos que se guardan en leaves*/
             LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
@@ -80,7 +64,7 @@ public class SearchMethods {
                 case BPP:
                     leaves.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
                 case BPPV:
-                    leaves = sortByBPPV(leaves);
+                    leaves = sortByBPPL(leaves, MAX_DEPTH);
             }
             currentDepth = current.getDepth();
 
@@ -90,6 +74,82 @@ public class SearchMethods {
 
         System.out.printf("No se encontraron soluciones despues de evaluar %d niveles.%n", currentDepth);
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
+    }
+
+    public returnNode LocalHeuristicSearch (LinkedList<Node> succesors){
+        while (!succesors.isEmpty()){
+            Node current = succesors.getFirst();
+            if(current.getState().equals(objectiveState)) {
+                return printObjective(current);
+            }
+            LinkedList<State> possible = checkPossibleDescendants(current.getState(), Method.LOCAL, current);
+            //possible son los estados posibles, hay que crear un nodo por cada estado posible.
+            //tree.addAll(possible);
+            //leaves.addAll(possible);
+
+            for(State s : possible){
+                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                current.addToDescendants(aux);
+                aux.setParent(current);
+                tree.add(aux);
+                leaves.add(aux);
+            }
+            LocalHeuristicSearch(leaves);
+            succesors.remove(current);
+        }
+        return null;
+    }
+
+    public returnNode GlobalHeuristicSearch (Node firstNode, Heuristic heuristic){
+        tree.add(firstNode);
+        leaves.add(firstNode);
+        while (!leaves.isEmpty()){
+            Node current = leaves.getFirst();
+            if(current.getState().equals(objectiveState)) {
+                return printObjective(current);
+            }
+            LinkedList<State> possible = checkPossibleDescendants(current.getState(), Method.GLOBAL, current);
+            for(State s : possible){
+                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                current.addToDescendants(aux);
+                aux.setParent(current);
+                tree.add(aux);
+                leaves.add(aux);
+            }
+            leaves.sort(new Comparator<Node>() {
+                @Override
+                public int compare(Node o1, Node o2) {
+                    return heuristic.getValue(o1.getState()) - heuristic.getValue(o2.getState());
+                }
+            });
+        }
+        return null;
+    }
+
+    public returnNode AStar (Node firstNode, Heuristic heuristic){
+        tree.add(firstNode);
+        leaves.add(firstNode);
+        while (!leaves.isEmpty()){
+            Node current = leaves.getFirst();
+            if(current.getState().equals(objectiveState)) {
+                return printObjective(current);
+            }
+            LinkedList<State> possible = checkPossibleDescendants(current.getState(), Method.GLOBAL, current);
+            for(State s : possible){
+                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                current.addToDescendants(aux);
+                aux.setParent(current);
+                tree.add(aux);
+                leaves.add(aux);
+            }
+            leaves.sort(new Comparator<Node>() {
+                @Override
+                public int compare(Node o1, Node o2) {
+                    return (o1.getActualCost() + heuristic.getValue(o1.getState())) - (o2.getActualCost() + heuristic.getValue(o2.getState()));
+                }
+            });
+        }
+        return null;
     }
 
     private LinkedList<State> checkPossibleDescendants(State current, Method alg, Node currentN) {
@@ -214,27 +274,46 @@ public class SearchMethods {
                 && current.getTower(2) == EMPTY_TOWER;
     }
 
-    private LinkedList<Node> sortByBPPV(LinkedList<Node> list){
+    private LinkedList<Node> sortByBPPL(LinkedList<Node> list, int height){
         LinkedList<Node> aux = new LinkedList<>();
-        int currentDepth = MAX_DEPTH;
         for (Node node : list){
-            if (1>node.getDepth()){}; //terminar
+            if (node.getDepth() <= height)
+                aux.add(node);
         }
         return aux;
     }
+
 
     private State getFirstState(){
         return this.firstState;
     }
 
-    public static void main(String[] args) {
+    private returnNode printObjective (Node node){
+        Node aux = node.getParent();
+        StringBuilder s = new StringBuilder(node.getState().toString());
+        int i = 0;
+        while (aux != null) {
+            s.insert(0, aux.getState().toString() + " --> ");
+            aux = aux.getParent();
+            if (i++ % 4 == 0) {
+                s.insert(0, "\n");
+            }
+        }
+        System.out.println("Estados desde inicial a objetivo: \n");
+        System.out.println(s);
+        return new returnNode(explored.size(), leaves.size(), node.getDepth(),
+                node.getDepth(), true, s.toString());
+    }
+
+
+    public void main(String[] args) {
         long initialTime = System.currentTimeMillis();
         System.out.println("hola\n");
 
         State s = getFirstState();
         Node i = setFirstNode();
 
-        returnNode n = Search(i, s, Method.BPA);
+        returnNode n = SearchUninformed(i, s, Method.BPA);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime)/1000;
@@ -248,7 +327,7 @@ public class SearchMethods {
         }
         str.append("Nodos expandidos: ").append(n.getExpandedNodes()).append("\n");
         str.append("Nodos frontera: ").append(n.getFrontierNodes()).append("\n");
-        System.out.println(str.toString());
+        System.out.println(str);
     }
 
 
