@@ -11,6 +11,12 @@ public class State {
         towers[2] = tower3;
     }
 
+    public State(long newState[]) {
+        if(newState.length == 3) {
+            this.towers = Arrays.copyOf(newState, 3);
+        }
+    }
+
     public long getTower(int num) {
         if(num < 0 || num > 2)
             return -1;

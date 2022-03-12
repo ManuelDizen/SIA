@@ -4,7 +4,7 @@
  * se ejecutan todas las acciones válidas, generando nuevos estados, chequeando que no sean repetidos y generando nodos
  * también se tiene que chequear si ganaste */
 
-import sun.awt.image.ImageWatched;
+
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -92,9 +92,68 @@ public class SearchMethods {
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
     }
 
-    private LinkedList<State> checkPossibleDescendants(State current, Method alg, Node currentN) {
+
+    private LinkedList<State> getDescendants(State current, int hasOne, int lower) {
+        long[] newState1, newState2, newState3;
+        newState1 = new long[3];
+        newState2 = new long[3];
+        newState3 = new long[3];
+        int other = 3 - hasOne - lower;
+
+
+        long hasOneNum = current.getTower(hasOne);
+        long lowerNum = current.getTower(lower);
+        long otherNum = current.getTower(other);
+
+        newState1[hasOne] = remove(hasOneNum);
+        newState1[lower] = add(lowerNum, hasOneNum);
+        newState1[other] = otherNum;
+
+        newState2[hasOne] = remove(hasOneNum);
+        newState2[lower] = lowerNum;
+        newState2[other] = add(otherNum, hasOneNum);
+
+        newState3[hasOne] = hasOneNum;
+        newState3[lower] = (lowerNum == otherNum ? lowerNum : remove(lowerNum));
+        newState3[other] = (lowerNum == otherNum ? lowerNum : add(otherNum, lowerNum));
 
         LinkedList<State> toReturn = new LinkedList<>();
+
+        toReturn.add(new State(newState1));
+        toReturn.add(new State(newState2));
+        toReturn.add(new State(newState3));
+        return toReturn;
+    }
+
+
+
+
+    private LinkedList<State> checkPossibleDescendants(State current, Method alg, Node currentN) {
+
+        long peekFirst = current.getTower(0) % 10;
+        long peekSecond = current.getTower(1) % 10;
+        long peekThird = current.getTower(2) % 10;
+
+        LinkedList<State> toReturn = new LinkedList<>();
+
+        if (peekFirst == 1) {
+            if (peekSecond < peekThird)
+                toReturn =  getDescendants(current,0, 1);
+            else
+                toReturn = getDescendants(current, 0, 2);
+        } else if (peekSecond == 1) {
+            if (peekFirst < peekThird)
+                toReturn = getDescendants(current,1, 0);
+            else
+                toReturn = getDescendants(current,1, 2);
+        } else {
+            if (peekFirst < peekThird)
+                toReturn = getDescendants(current,2, 0);
+            else
+                toReturn = getDescendants(current,2, 1);
+        }
+
+        /*LinkedList<State> toReturn = new LinkedList<>();
         State newState1;
         State newState2;
 
@@ -104,8 +163,7 @@ public class SearchMethods {
             toReturn.add(newState1);
             toReturn.add(newState2);
             return toReturn;
-        }
-
+        }*/
         /*
 
 
@@ -128,7 +186,7 @@ public class SearchMethods {
 
 
          */
-
+/*
         long peekFirst = current.getTower(0);
         long peekSecond = current.getTower(1);
         long peekThird = current.getTower(2);
@@ -173,7 +231,7 @@ public class SearchMethods {
         toReturn.add(newState1);
         toReturn.add(newState2);
         toReturn.add(newState3);
-
+*/
         int currentDepth = currentN.getDepth();
         boolean isBPPV = alg.equals(Method.BPPV);
         for(Node n : explored){
@@ -231,10 +289,12 @@ public class SearchMethods {
         long initialTime = System.currentTimeMillis();
         System.out.println("hola\n");
 
-        State s = getFirstState();
-        Node i = setFirstNode();
+        SearchMethods search = new SearchMethods();
 
-        returnNode n = Search(i, s, Method.BPA);
+        State s = search.getFirstState();
+        Node i = search.setFirstNode();
+
+        returnNode n = search.Search(i, s, Method.BPA);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime)/1000;
