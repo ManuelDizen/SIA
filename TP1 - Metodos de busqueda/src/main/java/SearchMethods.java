@@ -13,7 +13,6 @@ import java.util.Queue;
 
 public class SearchMethods {
 
-
     private State firstState = new State(COMPLETE_TOWER, EMPTY_TOWER, EMPTY_TOWER);
     private Node firstNode;
     private static final long EMPTY_TOWER = 8;
@@ -21,7 +20,7 @@ public class SearchMethods {
     private static final int MAX_DEPTH = 10;
     private LinkedList<Node> tree = new LinkedList<>();
     private LinkedList<Node> leaves = new LinkedList<>();
-    private LinkedList<Node> explored = new LinkedList<>();
+    private LinkedList<State> explored = new LinkedList<>();
 
     private State objectiveState = new State(EMPTY_TOWER, EMPTY_TOWER, COMPLETE_TOWER);
 
@@ -39,57 +38,79 @@ public class SearchMethods {
 
         int currentDepth = 0;
 
-        while (!leaves.isEmpty()) {
-            Node current = leaves.getFirst();
-            leaves.remove(current);
-            if (!explored.contains(current))
-                explored.add(current);
-            if(current.getState().equals(objectiveState)) {
-                Node aux = current.getParent();
-                StringBuilder s = new StringBuilder(current.getState().toString());
-                int i = 0;
-                while(aux != null){
-                    s.insert(0, aux.getState().toString() + " --> ");
-                    aux = aux.getParent();
-                    if(i++ % 4 == 0){
-                        s.insert(0, "\n");
+      if(method.equals(Method.BPPV)) {
+          searchBPPV();
+      } else {
+          System.out.println("hola2");
+            while (!leaves.isEmpty()) {
+                for(Node n : leaves) {
+                    System.out.println(String.format("Hoja: %d %d %d (Profundidad: %d)", n.getState().getTower(0), n.getState().getTower(1), n.getState().getTower(2), n.getDepth()));
+                }
+                Node current = leaves.getFirst();
+                leaves.remove(current);
+                /*if (!explored.contains(current.getState())) {
+                    explored.add(current.getState());
+                    System.out.println(String.format("Agrego estado: %d, %d, %d", current.getState().getTower(0), current.getState().getTower(1), current.getState().getTower(2)));
+                }*/
+                if(current.getState().equals(objectiveState)) {
+                    Node aux = current.getParent();
+                    StringBuilder s = new StringBuilder(current.getState().toString());
+                    int i = 0;
+                    while(aux != null){
+                        s.insert(0, aux.getState().toString() + " --> ");
+                        aux = aux.getParent();
+                        if(i++ % 4 == 0){
+                            s.insert(0, "\n");
+                        }
+                    }
+                    System.out.println("Estados desde inicial a objetivo: \n");
+                    System.out.println(s);
+                    return new returnNode(explored.size(), leaves.size(), current.getDepth(),
+                            current.getDepth(), true, s.toString());
+                }
+                /*Evaluar nodos que se guardan en leaves*/
+                LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
+                //possible son los estados posibles, hay que crear un nodo por cada estado posible.
+                //tree.addAll(possible);
+                //leaves.addAll(possible);
+
+                for(State s : possible){
+
+                    if(!explored.contains(s)) {
+                        Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                        current.addToDescendants(aux);
+                        aux.setParent(current);
+                        tree.add(aux);
+                        leaves.add(aux);
+                        explored.add(s);
+                        System.out.println(String.format("%d, %d, %d", s.getTower(0), s.getTower(1), s.getTower(2)));
                     }
                 }
-                System.out.println("Estados desde inicial a objetivo: \n");
-                System.out.println(s);
-                return new returnNode(explored.size(), leaves.size(), current.getDepth(),
-                        current.getDepth(), true, s.toString());
-            }
-            /*Evaluar nodos que se guardan en leaves*/
-            LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
-            //possible son los estados posibles, hay que crear un nodo por cada estado posible.
-            //tree.addAll(possible);
-            //leaves.addAll(possible);
 
-            for(State s : possible){
-                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
-                current.addToDescendants(aux);
-                aux.setParent(current);
-                tree.add(aux);
-                leaves.add(aux);
-            }
+                switch (method){
+                    case BPA:
+                        leaves.sort((o1, o2) -> o1.getDepth() - o2.getDepth());
+                        break;
+                    case BPP:
+                        leaves.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
+                        break;
+                }
+                currentDepth = current.getDepth();
 
-            switch (method){
-                case BPA:
-                    leaves.sort((o1, o2) -> o1.getDepth() - o2.getDepth());
-                case BPP:
-                    leaves.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
-                case BPPV:
-                    leaves = sortByBPPV(leaves);
             }
-            currentDepth = current.getDepth();
-
         }
-        /*TODO: Aca falta que, si es BPPV, se actualize el depth y arranque de vuelta a buscar.
+
+
+        /*TODO: Aca falta que, si es BPPV, se actualice el depth y arranque de vuelta a buscar.
         */
 
         System.out.printf("No se encontraron soluciones despues de evaluar %d niveles.%n", currentDepth);
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
+    }
+
+    private void searchBPPV() {
+        int depth = MAX_DEPTH;
+        while()
     }
 
 
@@ -134,6 +155,8 @@ public class SearchMethods {
         long peekSecond = current.getTower(1) % 10;
         long peekThird = current.getTower(2) % 10;
 
+        System.out.println(String.format("Descendientes de: %d %d %d", current.getTower(0), current.getTower(1), current.getTower(2)));
+        System.out.println(String.format("Profundidad: %d", currentN.getDepth()));
         LinkedList<State> toReturn = new LinkedList<>();
 
         if (peekFirst == 1) {
@@ -147,7 +170,7 @@ public class SearchMethods {
             else
                 toReturn = getDescendants(current,1, 2);
         } else {
-            if (peekFirst < peekThird)
+            if (peekFirst < peekSecond)
                 toReturn = getDescendants(current,2, 0);
             else
                 toReturn = getDescendants(current,2, 1);
@@ -234,7 +257,7 @@ public class SearchMethods {
 */
         int currentDepth = currentN.getDepth();
         boolean isBPPV = alg.equals(Method.BPPV);
-        for(Node n : explored){
+        /*for(Node n : explored){
             for(State s : toReturn){
                 if(s.equals(n.getState())){
                     if(isBPPV){
@@ -246,8 +269,8 @@ public class SearchMethods {
                         toReturn.remove(s);
                     }
                 }
-            }
-        }
+            }0
+        }*/
         /*
             NEcesito: COnseguir estados de nodos. Comparar esos estados de nodos con
             mis candidatos. Si metodo es BPPV, comparar profundidad. Si es < profundidad del
@@ -272,12 +295,14 @@ public class SearchMethods {
                 && current.getTower(2) == EMPTY_TOWER;
     }
 
-    private LinkedList<Node> sortByBPPV(LinkedList<Node> list){
+    private LinkedList<Node> sortByBPPV(LinkedList<Node> list, int depth){
+
         LinkedList<Node> aux = new LinkedList<>();
-        int currentDepth = MAX_DEPTH;
         for (Node node : list){
-            if (1>node.getDepth()){}; //terminar
+            if(node.getDepth() <= depth)
+                aux.add(node);
         }
+        aux.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
         return aux;
     }
 
