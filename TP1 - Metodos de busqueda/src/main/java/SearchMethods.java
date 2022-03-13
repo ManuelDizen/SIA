@@ -6,6 +6,7 @@
 
 
 
+import java.util.Comparator;
 import java.util.LinkedList;
 
 public class SearchMethods {
@@ -51,15 +52,11 @@ public class SearchMethods {
           return searchLocalWithBack(list);
       }
       else {
-          System.out.println("hola2");
             while (!leaves.isEmpty()) {
                 /*for(Node n : leaves) {
                     System.out.println(String.format("Hoja: %d %d %d (Profundidad: %d)", n.getState().getTower(0), n.getState().getTower(1), n.getState().getTower(2), n.getDepth()));
                 }*/
                 Node current = leaves.getFirst();
-                if(current.getParent() != null)
-                    System.out.println(String.format("Previous: %d %d %d (Profundidad: %d)",current.getParent().getState().getTower(0), current.getParent().getState().getTower(1), current.getParent().getState().getTower(2), current.getParent().getDepth()) );
-                System.out.println(String.format("Current: %d %d %d (Profundiad: %d)\n", current.getState().getTower(0), current.getState().getTower(1), current.getState().getTower(2), current.getDepth()));
                 leaves.remove(current);
                 /*if (!explored.contains(current.getState())) {
                     explored.add(current.getState());
@@ -131,6 +128,7 @@ public class SearchMethods {
     private returnNode searchLocalWithBack(LinkedList<Node> list) {
         while(!list.isEmpty()){
             Node n = list.getFirst();
+            explored.add(n.getState());
             if(n.getState().equals(objectiveState)){
                 return generateReturnNode(n);
             }
@@ -147,14 +145,19 @@ public class SearchMethods {
                     nodes.add(aux);
                 }
             }
-            nodes.sort(h);
-            searchLocalWithBack(nodes);
-            list.removeFirst();
+            nodes.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
+            returnNode toRet = searchLocalWithBack(nodes);
+            list.remove(n);
+            if (toRet.result)
+                return toRet;
         }
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
     }
 
     private returnNode searchLocalNoBack(Node current) {
+        if (current == null){
+            return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
+        }
         if(current.getState().equals(objectiveState)){
             return generateReturnNode(current);
         }
@@ -171,20 +174,13 @@ public class SearchMethods {
                 nodes.add(aux);
             }
         }
-        nodes.sort(h);
+        nodes.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
         Node aux = null;
         while(aux == null && !nodes.isEmpty()){
             aux = nodes.getFirst();
             nodes.removeFirst();
         }
-        if(aux == null){
-            return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
-        }
-        else{
-            searchLocalNoBack(aux);
-        }
-        //Should never reach this point but need to address return value;
-        return null;
+        return searchLocalNoBack(aux);
     }
 
     private returnNode generateReturnNode(Node current) {
@@ -309,15 +305,15 @@ public class SearchMethods {
     public static void main(String[] args) {
         long initialTime = System.currentTimeMillis();
         SearchMethods search = new SearchMethods();
-        search.setMethod(Method.BPA);
-        search.setHeuristic(new Heuristic2());
+        search.setMethod(Method.A_STAR);
+        search.setHeuristic(new Heuristic1());
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, Method.BPA);
+        returnNode n = search.Search(i, s, Method.A_STAR);
 
         long endingTime = System.currentTimeMillis();
-        long totalTime = (endingTime - initialTime)/1000;
+        long totalTime = (endingTime - initialTime);
         StringBuilder str = new StringBuilder();
         str.append("Resultados: \n").append("Tiempo de ejecución: "). append(totalTime).append("\n");
         str.append("Encontro solución: ").append(n.getResult()).append("\n");
