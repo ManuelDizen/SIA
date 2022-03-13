@@ -6,16 +6,14 @@
 
 
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedList;
-import java.util.Queue;
 
 public class SearchMethods {
 
     private State firstState = new State(COMPLETE_TOWER, EMPTY_TOWER, EMPTY_TOWER);
     private Node firstNode;
-    private Comparator<Node> h;
+    private Heuristic h;
+    private Method method;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
     private static final int MAX_DEPTH = 10;
@@ -30,7 +28,7 @@ public class SearchMethods {
         firstNode.setParent(null);
         return firstNode;
     }
-    public void setHeuristic(Comparator<Node> h){
+    public void setHeuristic(Heuristic h){
         this.h = h;
     }
 
@@ -48,15 +46,20 @@ public class SearchMethods {
           return searchLocalNoBack(firstNode);
       }
       else if(method.equals(Method.LOCAL_BACK)){
-
+          LinkedList<Node> list = new LinkedList<>();
+          list.add(firstNode);
+          return searchLocalWithBack(list);
       }
       else {
           System.out.println("hola2");
             while (!leaves.isEmpty()) {
-                for(Node n : leaves) {
+                /*for(Node n : leaves) {
                     System.out.println(String.format("Hoja: %d %d %d (Profundidad: %d)", n.getState().getTower(0), n.getState().getTower(1), n.getState().getTower(2), n.getDepth()));
-                }
+                }*/
                 Node current = leaves.getFirst();
+                if(current.getParent() != null)
+                    System.out.println(String.format("Previous: %d %d %d (Profundidad: %d)",current.getParent().getState().getTower(0), current.getParent().getState().getTower(1), current.getParent().getState().getTower(2), current.getParent().getDepth()) );
+                System.out.println(String.format("Current: %d %d %d (Profundiad: %d)\n", current.getState().getTower(0), current.getState().getTower(1), current.getState().getTower(2), current.getDepth()));
                 leaves.remove(current);
                 /*if (!explored.contains(current.getState())) {
                     explored.add(current.getState());
@@ -92,7 +95,7 @@ public class SearchMethods {
                         tree.add(aux);
                         leaves.add(aux);
                         explored.add(s);
-                        System.out.println(String.format("%d, %d, %d", s.getTower(0), s.getTower(1), s.getTower(2)));
+                        //System.out.println(String.format("%d, %d, %d", s.getTower(0), s.getTower(1), s.getTower(2)));
                     }
                 }
 
@@ -107,7 +110,8 @@ public class SearchMethods {
                         leaves.sort(h);
                         break;
                     case A_STAR:
-                        leaves.sort(new AStarComparator());
+                        leaves.sort((o1, o2) -> (o2.getDepth() + h.getHValue(o2.getState())) -
+                                o1.getDepth() + h.getHValue(o1.getState()));
                         break;
 
                 }
@@ -124,59 +128,87 @@ public class SearchMethods {
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
     }
 
-    private class AStarComparator implements Comparator<Node>{
-
-        @Override
-        public int compare(Node o1, Node o2) {
-            //TODO: Esto hay que generalizarlo!!! Lo puse asi para testear con una heurística random
-            heuristic1 h = new heuristic1();
-            int fValue1 = o1.getDepth() + h.getHValueForNode(o1);
-            int fValue2 = o2.getDepth() + h.getHValueForNode(o2);
-            return fValue2 - fValue1;
+    private returnNode searchLocalWithBack(LinkedList<Node> list) {
+        while(!list.isEmpty()){
+            Node n = list.getFirst();
+            if(n.getState().equals(objectiveState)){
+                return generateReturnNode(n);
+            }
+            LinkedList<State> possible = checkPossibleDescendants(n.getState(), method, n);
+            LinkedList<Node> nodes = new LinkedList<>();
+            for(State s : possible){
+                if(!explored.contains(s)){
+                    Node aux = new Node(s, n.getDepth() + 1, n.getDepth() + 1);
+                    n.addToDescendants(aux);
+                    aux.setParent(n);
+                    tree.add(aux);
+                    leaves.add(aux);
+                    explored.add(s);
+                    nodes.add(aux);
+                }
+            }
+            nodes.sort(h);
+            searchLocalWithBack(nodes);
+            list.removeFirst();
         }
+        return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
     }
 
-    private returnNode searchLocalNoBack(Node firstNode) {
+    private returnNode searchLocalNoBack(Node current) {
+        if(current.getState().equals(objectiveState)){
+            return generateReturnNode(current);
+        }
+        LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
+        LinkedList<Node> nodes = new LinkedList<>();
+        for(State s : possible){
+            if(!explored.contains(s)){
+                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+                current.addToDescendants(aux);
+                aux.setParent(current);
+                tree.add(aux);
+                leaves.add(aux);
+                explored.add(s);
+                nodes.add(aux);
+            }
+        }
+        nodes.sort(h);
+        Node aux = null;
+        while(aux == null && !nodes.isEmpty()){
+            aux = nodes.getFirst();
+            nodes.removeFirst();
+        }
+        if(aux == null){
+            return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
+        }
+        else{
+            searchLocalNoBack(aux);
+        }
+        //Should never reach this point but need to address return value;
         return null;
+    }
+
+    private returnNode generateReturnNode(Node current) {
+        Node aux = current.getParent();
+        StringBuilder s = new StringBuilder();
+        s.insert(0, current.getState().toString());
+        int i = 0;
+        while(aux != null){
+            s.insert(0, aux.getState().toString() + " --> ");
+            aux = aux.getParent();
+            if(i++ % 4 == 0){
+                s.insert(0, "\n");
+            }
+        }
+                    /*System.out.println("Estados desde inicial a objetivo: \n");
+                    System.out.println(s);*/
+        return new returnNode(explored.size(), leaves.size(), current.getDepth(),
+                current.getDepth(), true, s.toString());
     }
 
     private void searchBPPV() {
         int depth = MAX_DEPTH;
         while(true);
     }
-
-    private class heuristic1 implements Comparator<Node> {
-        // Compara nodos que ya hay en la derecha
-        @Override
-        public int compare(Node o1, Node o2) {
-            long d1 = o1.getState().getTower(2);
-            long d2 = o2.getState().getTower(2);
-            int discsOnRight1 = 7 - calculateDiscs(d1);
-            int discsOnRight2 = 7 - calculateDiscs(d2);
-            return discsOnRight2 - discsOnRight1; //Si o2 tiene mas discos bien ubicados, h() debe devolver un valor menor y ordenarlos asi
-        }
-
-        public int getHValueForNode(Node n){
-            return 7 - calculateDiscs(n.getState().getTower(2));
-        }
-    }
-
-    private int calculateDiscs(long n){
-        String s = String.valueOf(n);
-        int pos = 1; //First position is always 8.
-        boolean flag = true;
-        while(flag && pos < s.length()){
-            if(Integer.parseInt(String.valueOf(s.charAt(pos))) == 8 - pos){
-                pos++;
-            }
-            else{
-                flag = false;
-            }
-
-        }
-        return pos;
-    }
-
 
     private LinkedList<State> getDescendants(State current, int hasOne, int lower) {
         long[] newState1, newState2, newState3;
@@ -219,8 +251,8 @@ public class SearchMethods {
         long peekSecond = current.getTower(1) % 10;
         long peekThird = current.getTower(2) % 10;
 
-        System.out.println(String.format("Descendientes de: %d %d %d", current.getTower(0), current.getTower(1), current.getTower(2)));
-        System.out.println(String.format("Profundidad: %d", currentN.getDepth()));
+        //System.out.println(String.format("Descendientes de: %d %d %d", current.getTower(0), current.getTower(1), current.getTower(2)));
+        //System.out.println(String.format("Profundidad: %d", currentN.getDepth()));
         LinkedList<State> toReturn = new LinkedList<>();
 
         if (peekFirst == 1) {
@@ -240,108 +272,8 @@ public class SearchMethods {
                 toReturn = getDescendants(current,2, 1);
         }
 
-        /*LinkedList<State> toReturn = new LinkedList<>();
-        State newState1;
-        State newState2;
-
-        if(isInitialState(current)){
-            newState1 = new State(remove(COMPLETE_TOWER), 1, EMPTY_TOWER);
-            newState2 = new State(remove(COMPLETE_TOWER), EMPTY_TOWER, 1);
-            toReturn.add(newState1);
-            toReturn.add(newState2);
-            return toReturn;
-        }*/
-        /*
-
-
-        long peekFirst = current.getTower(0);
-        long peekSecond = current.getTower(1);
-        long peekThird = current.getTower(2);
-
-        State newState1, newState2, newState3;
-
-        if(peekFirst%10 == 1) {
-            newState1 = new State(peekFirst/10, peekSecond*10+1, peekThird);
-            newState2 = new State(peekFirst/10, peekSecond, peekThird*10+1);
-
-            if(peekSecond%10 < peekThird%10) {
-                newState3 = new State(peekFirst, peekSecond/10, peekThird*10+(peekSecond%10));
-            } else {
-                newState3 = new State(peekFirst, peekSecond*10+(peekThird%10), peekThird/10);
-            }
-        }
-
-
-         */
-/*
-        long peekFirst = current.getTower(0);
-        long peekSecond = current.getTower(1);
-        long peekThird = current.getTower(2);
-
-        State newState3;
-        // Not in initial state --> Procedo a revisar
-        if(peekFirst < peekSecond){ // 1 < 2
-            if(peekFirst < peekThird){ // 1 < 2 and 1 < 3
-                // En primer palo, esta el mas chico
-                newState1 = new State(remove(peekFirst), add(peekSecond, peekFirst), peekThird);
-                newState2 = new State(remove(peekFirst), peekSecond, add(peekThird, peekFirst));
-                if(peekSecond < peekThird){ // 1 < 2 and 1 < 3 and 2 < 3 ==> 1 < 2 < 3
-                    newState3 = new State(peekFirst, remove(peekSecond), add(peekThird, peekSecond));
-                }
-                else{ // 1 < 3 < 2
-                    newState3 = new State(peekFirst, add(peekSecond, peekThird), remove(peekThird));
-                }
-            }
-            else{ // 1 < 2 y 1 >= 3  ==>  3 < 1 < 2
-                newState1 = new State(remove(peekFirst), add(peekSecond, peekFirst), peekThird);
-                newState2 = new State(peekFirst, add(peekSecond, peekThird), remove(peekThird));
-                newState3 = new State(add(peekFirst, peekThird), peekSecond, remove(peekThird));
-            }
-        }
-        else{ // 1 > 2
-            if(peekFirst > peekThird){ // 1 > 2 and 1 > 3
-                newState1 = new State(add(peekFirst, peekThird), peekSecond, remove(peekThird));
-                newState2 = new State(add(peekFirst, peekThird), remove(peekSecond), peekThird);
-                if(peekSecond > peekThird){ // 3 < 2 < 1
-                    newState3 = new State(peekFirst, add(peekSecond, peekThird), remove(peekThird));
-                }
-                else{ // 1 > 3 and 2 < 3 and 1 > 2 ==> 2 < 3 < 1
-                    newState3 = new State(peekFirst, remove(peekSecond), add(peekThird, peekSecond));
-                }
-            }
-            else{ // 1 > 2 and 3 > 1 ==> 2 < 1 < 3
-                newState1 = new State(add(peekFirst, peekSecond), remove(peekSecond), peekThird);
-                newState2 = new State(peekFirst, remove(peekSecond), add(peekThird, peekSecond));
-                newState3 = new State(remove(peekFirst), peekSecond, add(peekThird, peekFirst));
-            }
-        }
-        toReturn.add(newState1);
-        toReturn.add(newState2);
-        toReturn.add(newState3);
-*/
         int currentDepth = currentN.getDepth();
         boolean isBPPV = alg.equals(Method.BPPV);
-        /*for(Node n : explored){
-            for(State s : toReturn){
-                if(s.equals(n.getState())){
-                    if(isBPPV){
-                        if(currentDepth + 1 >= n.getDepth()){
-                            toReturn.remove(s);
-                        }
-                    }
-                    else{
-                        toReturn.remove(s);
-                    }
-                }
-            }0
-        }*/
-        /*
-            NEcesito: COnseguir estados de nodos. Comparar esos estados de nodos con
-            mis candidatos. Si metodo es BPPV, comparar profundidad. Si es < profundidad del
-            nodo explorado, lo encolo igual (porque la solución se puede llegar a encontrar en
-            una menor prof). Si es >= remuevo.
-            Si es BPA o BPPV, remuevo directamente.
-         */
 
         return toReturn;
     }
@@ -374,19 +306,15 @@ public class SearchMethods {
         return this.firstState;
     }
 
-    private Comparator<Node> makeHeuristic1(){
-        return new heuristic1();
-    }
-
     public static void main(String[] args) {
         long initialTime = System.currentTimeMillis();
-        System.out.println("hola\n");
         SearchMethods search = new SearchMethods();
-        search.setHeuristic(search.makeHeuristic1());
+        search.setMethod(Method.BPA);
+        search.setHeuristic(new Heuristic2());
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, Method.A_STAR);
+        returnNode n = search.Search(i, s, Method.BPA);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime)/1000;
@@ -403,6 +331,9 @@ public class SearchMethods {
         System.out.println(str.toString());
     }
 
+    private void setMethod(Method method) {
+        this.method = method;
+    }
 
 
     public static class returnNode{
