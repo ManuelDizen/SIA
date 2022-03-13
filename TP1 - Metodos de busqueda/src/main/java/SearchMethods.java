@@ -15,6 +15,7 @@ public class SearchMethods {
 
     private State firstState = new State(COMPLETE_TOWER, EMPTY_TOWER, EMPTY_TOWER);
     private Node firstNode;
+    private Comparator<Node> h;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
     private static final int MAX_DEPTH = 10;
@@ -29,7 +30,9 @@ public class SearchMethods {
         firstNode.setParent(null);
         return firstNode;
     }
-
+    public void setHeuristic(Comparator<Node> h){
+        this.h = h;
+    }
 
     public returnNode Search (Node firstNode, State firstState, Method method){
 
@@ -40,7 +43,14 @@ public class SearchMethods {
 
       if(method.equals(Method.BPPV)) {
           searchBPPV();
-      } else {
+      }
+      else if(method.equals(Method.LOCAL_NO_BACK)){
+          return searchLocalNoBack(firstNode);
+      }
+      else if(method.equals(Method.LOCAL_BACK)){
+
+      }
+      else {
           System.out.println("hola2");
             while (!leaves.isEmpty()) {
                 for(Node n : leaves) {
@@ -63,8 +73,8 @@ public class SearchMethods {
                             s.insert(0, "\n");
                         }
                     }
-                    System.out.println("Estados desde inicial a objetivo: \n");
-                    System.out.println(s);
+                    /*System.out.println("Estados desde inicial a objetivo: \n");
+                    System.out.println(s);*/
                     return new returnNode(explored.size(), leaves.size(), current.getDepth(),
                             current.getDepth(), true, s.toString());
                 }
@@ -75,7 +85,6 @@ public class SearchMethods {
                 //leaves.addAll(possible);
 
                 for(State s : possible){
-
                     if(!explored.contains(s)) {
                         Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
                         current.addToDescendants(aux);
@@ -94,6 +103,13 @@ public class SearchMethods {
                     case BPP:
                         leaves.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
                         break;
+                    case GLOBAL:
+                        leaves.sort(h);
+                        break;
+                    case A_STAR:
+                        leaves.sort(new AStarComparator());
+                        break;
+
                 }
                 currentDepth = current.getDepth();
 
@@ -108,9 +124,57 @@ public class SearchMethods {
         return new returnNode(explored.size(), leaves.size(), -1, -1, false, null);
     }
 
+    private class AStarComparator implements Comparator<Node>{
+
+        @Override
+        public int compare(Node o1, Node o2) {
+            //TODO: Esto hay que generalizarlo!!! Lo puse asi para testear con una heurística random
+            heuristic1 h = new heuristic1();
+            int fValue1 = o1.getDepth() + h.getHValueForNode(o1);
+            int fValue2 = o2.getDepth() + h.getHValueForNode(o2);
+            return fValue2 - fValue1;
+        }
+    }
+
+    private returnNode searchLocalNoBack(Node firstNode) {
+        return null;
+    }
+
     private void searchBPPV() {
         int depth = MAX_DEPTH;
-        while()
+        while(true);
+    }
+
+    private class heuristic1 implements Comparator<Node> {
+        // Compara nodos que ya hay en la derecha
+        @Override
+        public int compare(Node o1, Node o2) {
+            long d1 = o1.getState().getTower(2);
+            long d2 = o2.getState().getTower(2);
+            int discsOnRight1 = 7 - calculateDiscs(d1);
+            int discsOnRight2 = 7 - calculateDiscs(d2);
+            return discsOnRight2 - discsOnRight1; //Si o2 tiene mas discos bien ubicados, h() debe devolver un valor menor y ordenarlos asi
+        }
+
+        public int getHValueForNode(Node n){
+            return 7 - calculateDiscs(n.getState().getTower(2));
+        }
+    }
+
+    private int calculateDiscs(long n){
+        String s = String.valueOf(n);
+        int pos = 1; //First position is always 8.
+        boolean flag = true;
+        while(flag && pos < s.length()){
+            if(Integer.parseInt(String.valueOf(s.charAt(pos))) == 8 - pos){
+                pos++;
+            }
+            else{
+                flag = false;
+            }
+
+        }
+        return pos;
     }
 
 
@@ -310,16 +374,19 @@ public class SearchMethods {
         return this.firstState;
     }
 
+    private Comparator<Node> makeHeuristic1(){
+        return new heuristic1();
+    }
+
     public static void main(String[] args) {
         long initialTime = System.currentTimeMillis();
         System.out.println("hola\n");
-
         SearchMethods search = new SearchMethods();
-
+        search.setHeuristic(search.makeHeuristic1());
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, Method.BPA);
+        returnNode n = search.Search(i, s, Method.A_STAR);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime)/1000;

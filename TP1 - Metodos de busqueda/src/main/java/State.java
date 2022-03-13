@@ -36,4 +36,9 @@ public class State {
         return Arrays.hashCode(towers);
     }
 
+    @Override
+    public String toString(){
+        return this.getTower(0) + " - " + this.getTower(1) + " - " + this.getTower(2);
+    }
+
 }
