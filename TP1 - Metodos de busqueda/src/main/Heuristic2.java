@@ -1,3 +1,5 @@
+package main;
+
 public class Heuristic2 implements Heuristic{
     //Suma discos que aun no estan a la derecha + 2*nodos que estan a derecha pero no estanb ien ubicados
     //Fundamento: Discos que no estan a la derecha --> requieren minimo 1 movimiento mas para llegar a derecha

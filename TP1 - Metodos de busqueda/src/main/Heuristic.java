@@ -1,3 +1,5 @@
+package main;
+
 import java.util.Comparator;
 
 public interface Heuristic extends Comparator<Node> {

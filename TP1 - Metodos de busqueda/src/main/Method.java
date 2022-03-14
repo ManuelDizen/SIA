@@ -1,3 +1,5 @@
+package main;
+
 public enum Method {
     BPA,
     BPP,

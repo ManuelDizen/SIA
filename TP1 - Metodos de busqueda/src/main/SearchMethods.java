@@ -1,13 +1,14 @@
-//resolver por BPA y BPP
+package main;//resolver por BPA y BPP
 /* usamos una cola de estados, en el cual vamos guardando cada estado generado para comparar
  * despues iteramos con un for arrancando del nodo inicial, preguntando qué acciones se pueden hacer sobre él
  * se ejecutan todas las acciones válidas, generando nuevos estados, chequeando que no sean repetidos y generando nodos
  * también se tiene que chequear si ganaste */
 
-
-
-import java.util.Comparator;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedList;
+import java.util.Properties;
 
 public class SearchMethods {
 
@@ -15,6 +16,7 @@ public class SearchMethods {
     private Node firstNode;
     private Heuristic h;
     private Method method;
+    private int depth = MAX_DEPTH;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
     private static final int MAX_DEPTH = 10;
@@ -175,12 +177,9 @@ public class SearchMethods {
             }
         }
         nodes.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
-        Node aux = null;
-        while(aux == null && !nodes.isEmpty()){
-            aux = nodes.getFirst();
-            nodes.removeFirst();
-        }
-        return searchLocalNoBack(aux);
+        if (nodes.isEmpty())
+            return searchLocalNoBack(null);
+        return searchLocalNoBack(nodes.getFirst());
     }
 
     private returnNode generateReturnNode(Node current) {
@@ -237,9 +236,6 @@ public class SearchMethods {
         toReturn.add(new State(newState3));
         return toReturn;
     }
-
-
-
 
     private LinkedList<State> checkPossibleDescendants(State current, Method alg, Node currentN) {
 
@@ -321,21 +317,68 @@ public class SearchMethods {
     }
 
 
-    public void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         long initialTime = System.currentTimeMillis();
         SearchMethods search = new SearchMethods();
-        search.setMethod(Method.A_STAR);
-        search.setHeuristic(new Heuristic1());
+
+        Properties prop = new Properties();
+        String propFileName = "config.properties";
+
+        InputStream inputStream = SearchMethods.class.getClassLoader().getResourceAsStream(propFileName);
+        if (inputStream == null){
+            System.out.println("Error leyendo el archivo de configuración");
+            return;
+        }
+        prop.load(inputStream);
+
+        String methodStr = prop.getProperty("method");
+        String heuristicStr = prop.getProperty("heuristic");
+        String BPPVDepthStr = prop.getProperty("BPPVDepth");
+        inputStream.close();
+
+        Method method;
+        switch (methodStr){
+            case "BPA": method = Method.BPA; break;
+            case "BPP": method = Method.BPP; break;
+            case "BPPV": method = Method.BPPV; break;
+            case "LOCAL_NO_BACK": method = Method.LOCAL_NO_BACK; break;
+            case "LOCAL_BACK": method = Method.LOCAL_BACK; break;
+            case "GLOBAL": method = Method.GLOBAL; break;
+            case "A_STAR": method = Method.A_STAR; break;
+            default: System.out.println("Método inválido"); return;
+        }
+        search.setMethod(method);
+        if (method.equals(Method.LOCAL_BACK) || method.equals(Method.LOCAL_NO_BACK) || method.equals(Method.GLOBAL) || method.equals(Method.A_STAR)) {
+            Heuristic heuristic;
+            switch (heuristicStr) {
+                case "1":
+                    heuristic = new Heuristic1();
+                    break;
+                case "2":
+                    heuristic = new Heuristic2();
+                    break;
+                case "3":
+                    heuristic = new Heuristic3();
+                    break;
+                default:
+                    System.out.println("Heurística inválida");
+                    return;
+            }
+            search.setHeuristic(heuristic);
+        }
+        else if (method.equals(Method.BPPV))
+            search.setDepth(Integer.parseInt(BPPVDepthStr));
+
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, Method.A_STAR);
+        returnNode n = search.Search(i, s, method);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime);
         StringBuilder str = new StringBuilder();
-        str.append("Resultados: \n").append("Tiempo de ejecución: "). append(totalTime).append("\n");
-        str.append("Encontro solución: ").append(n.getResult()).append("\n");
+        str.append("Resultados: \n").append("Tiempo de ejecución (ms): "). append(totalTime).append("\n");
+        str.append("Encontró solución: ").append(n.getResult()).append("\n");
         if(n.getResult()) {
             str.append("Solución: ").append(n.getSolution()).append("\n");
             str.append("Costo de solución: ").append(n.getCost()).append("\n");
@@ -348,6 +391,10 @@ public class SearchMethods {
 
     private void setMethod(Method method) {
         this.method = method;
+    }
+
+    private void setDepth (int depth){
+        this.depth = depth;
     }
 
 
