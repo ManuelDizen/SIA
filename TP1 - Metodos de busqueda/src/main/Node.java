@@ -63,7 +63,7 @@ public class Node {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Node node = (Node) o;
-        return depth == node.depth && Objects.equals(state, node.state);
+        return && Objects.equals(state, node.state);
     }
 
     @Override
