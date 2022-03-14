@@ -26,5 +26,10 @@ Existen 3 opciones de heurística, las primeras dos siendo admisibles y la terce
   (les falta alguno por debajo. Ej: 7 - 5 - 4 tiene dos discos mal ubicados).
 - 3:
 
+## Requerimientos:
+Es necesario tener instalado Java en la computadora en la cual se quiere ejecutar el `.jar`
+
+A su vez, es de suma importancia **no modificar la ubicación del config.properties**.
+
 ## Ejecución:
 Ejecutar el archivo .jar

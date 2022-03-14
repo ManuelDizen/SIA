@@ -16,6 +16,7 @@ public class SearchMethods {
     private Node firstNode;
     private Heuristic h;
     private Method method;
+    private boolean compareDepths;
     private int depth = MAX_DEPTH;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
@@ -141,7 +142,7 @@ public class SearchMethods {
     private returnNode searchLocalWithBack(LinkedList<Node> list) {
         while(!list.isEmpty()){
             Node n = list.getFirst();
-            explored.add(n.getState());
+            explored.add(n);
             if(n.getState().equals(objectiveState)){
                 return generateReturnNode(n);
             }
@@ -154,7 +155,7 @@ public class SearchMethods {
                     aux.setParent(n);
                     tree.add(aux);
                     leaves.add(aux);
-                    explored.add(s);
+                    explored.add(aux);
                     nodes.add(aux);
                 }
             }
@@ -183,7 +184,7 @@ public class SearchMethods {
                 aux.setParent(current);
                 tree.add(aux);
                 leaves.add(aux);
-                explored.add(s);
+                explored.add(aux);
                 nodes.add(aux);
             }
         }
@@ -408,7 +409,7 @@ public class SearchMethods {
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, method);
+        returnNode n = search.Search(i, s, Method.BPA);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime);
