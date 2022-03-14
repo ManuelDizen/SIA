@@ -16,10 +16,11 @@ public class SearchMethods {
     private Node firstNode;
     private Heuristic h;
     private Method method;
-    private int depth = MAX_DEPTH;
+    private int limit = MAX_DEPTH;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
-    private static final int MAX_DEPTH = 10;
+    private static final int INITIAL_DEPTH = 100;
+    private static final int MAX_DEPTH = 500;
     private LinkedList<Node> tree = new LinkedList<>();
     private LinkedList<Node> leaves = new LinkedList<>();
     private LinkedList<State> explored = new LinkedList<>();
@@ -39,11 +40,12 @@ public class SearchMethods {
 
         tree.add(firstNode);
         leaves.add(firstNode);
+        explored.add(firstNode.getState());
 
         int currentDepth = 0;
 
       if(method.equals(Method.BPPV)) {
-          searchBPPV();
+          return sortBPPV2(firstNode);
       }
       else if(method.equals(Method.LOCAL_NO_BACK)){
           return searchLocalNoBack(firstNode);
@@ -115,7 +117,6 @@ public class SearchMethods {
 
                 }
                 currentDepth = current.getDepth();
-
             }
         }
 
@@ -200,11 +201,6 @@ public class SearchMethods {
                 current.getDepth(), true, s.toString());
     }
 
-    private void searchBPPV() {
-        int depth = MAX_DEPTH;
-        while(true);
-    }
-
     private LinkedList<State> getDescendants(State current, int hasOne, int lower) {
         long[] newState1, newState2, newState3;
         newState1 = new long[3];
@@ -283,15 +279,73 @@ public class SearchMethods {
                 && current.getTower(2) == EMPTY_TOWER;
     }
 
-    private LinkedList<Node> sortByBPPV(LinkedList<Node> list, int depth){
-
-        LinkedList<Node> aux = new LinkedList<>();
-        for (Node node : list){
-            if(node.getDepth() <= depth)
-                aux.add(node);
+    private returnNode sortByBPPV() {
+        boolean finish = false;
+        boolean found = false;
+        returnNode aux;
+        returnNode ans = new returnNode(0, 0, -1, -1, false, null);
+        while(!finish) {
+            tree = new LinkedList<>();
+            leaves = new LinkedList<>();
+            explored = new LinkedList<>();
+            aux = Search(firstNode, firstState, Method.BPP);
+            if(!aux.getResult()) {
+                System.out.println("No se encontró solución en " + limit + " niveles.");
+                if(limit < MAX_DEPTH && !found)
+                    limit++;
+                else {
+                    finish = true;
+                    if(!found)
+                        ans = aux;
+                }
+            } else {
+                System.out.println("Se encontró solución en " + limit + " niveles.");
+                found = true;
+                limit--;
+                ans = aux;
+            }
         }
-        aux.sort((o1, o2) -> o2.getDepth() - o1.getDepth());
-        return aux;
+        return ans;
+    }
+
+    private returnNode sortBPPV2(Node firstNode){
+        for (int i = limit; i < MAX_DEPTH; i++){
+            leaves = new LinkedList<>();
+            leaves.add(firstNode);
+            explored = new LinkedList<>();
+            tree = new LinkedList<>();
+            returnNode aux = sortBPPVRec(i);
+            if (aux != null)
+                return aux;
+            System.out.println("No se encontro solucion en " + i + " niveles.");
+        }
+        return new returnNode(explored.size(), leaves.size(), -1, -1, false, "No solution");
+    }
+
+    private returnNode sortBPPVRec (int depth){
+        if (leaves.isEmpty())
+            return null;
+        Node first = leaves.getFirst();
+        if (first.getState().equals(objectiveState))
+            return printObjective(first);
+        if (first.getDepth() > depth)
+            return null;
+        LinkedList<State> possible = checkPossibleDescendants(first.getState(), method, first);
+        //LinkedList<Node> nodes = new LinkedList<>();
+        for(State s : possible){
+            if(!explored.contains(s)){
+                Node aux = new Node(s, first.getDepth() + 1, first.getDepth() + 1);
+                first.addToDescendants(aux);
+                aux.setParent(first);
+                tree.add(aux);
+                leaves.add(aux);
+                explored.add(s);
+                //nodes.add(aux);
+            }
+        }
+        leaves.remove(first);
+        leaves.sort((o1, o2) -> o1.getDepth() - o2.getDepth());
+        return sortBPPVRec(depth);
     }
 
 
@@ -310,8 +364,10 @@ public class SearchMethods {
                 s.insert(0, "\n");
             }
         }
+        /*
         System.out.println("Estados desde inicial a objetivo: \n");
         System.out.println(s);
+        */
         return new returnNode(explored.size(), leaves.size(), node.getDepth(),
                 node.getDepth(), true, s.toString());
     }
@@ -394,7 +450,7 @@ public class SearchMethods {
     }
 
     private void setDepth (int depth){
-        this.depth = depth;
+        this.limit = depth;
     }
 
 
