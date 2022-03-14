@@ -4,30 +4,21 @@ public class Heuristic3 implements Heuristic{
 
     @Override
     public int compare(Node o1, Node o2) {
-        long d1 = o1.getState().getTower(2);
-        long d2 = o2.getState().getTower(2);
-        int discsOnRight1 = 7 - calculateDiscs(d1);
-        int discsOnRight2 = 7 - calculateDiscs(d2);
-        return discsOnRight2 - discsOnRight1; //Si o2 tiene mas discos bien ubicados, h() debe devolver un valor menor y ordenarlos asi
+        int HValue1 = getHValue(o1.getState());
+        int HValue2 = getHValue(o2.getState());
+        return HValue2 - HValue1;
     }
 
     public int getHValue(State s){
-        return 7 - calculateDiscs(s.getTower(2));
+        int firstDisc = calculateDiscs(n);
+        int HValue = (int) Math.pow(2, firstDisc-1)-1;
+        for(int i=firstDisc; i<7; i++) {
+            HValue += Math.pow(2, i+1) - 2;
+        }
+        return HValue;
     }
 
     private int calculateDiscs(long n){
-        String s = String.valueOf(n);
-        int pos = 1; //First position is always 8.
-        boolean flag = true;
-        while(flag && pos < s.length()){
-            if(Integer.parseInt(String.valueOf(s.charAt(pos))) == 8 - pos){
-                pos++;
-            }
-            else{
-                flag = false;
-            }
-
-        }
-        return pos;
+        return (int) (n % 10);
     }
 }
