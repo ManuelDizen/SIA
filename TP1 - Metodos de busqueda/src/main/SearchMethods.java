@@ -24,7 +24,7 @@ public class SearchMethods {
     private int limit = MAX_DEPTH;
     private LinkedList<Node> tree = new LinkedList<>();
     private LinkedList<Node> leaves = new LinkedList<>();
-    private LinkedList<State> explored = new LinkedList<>();
+    private LinkedList<Node> explored = new LinkedList<>();
 
     private State objectiveState = new State(EMPTY_TOWER, EMPTY_TOWER, COMPLETE_TOWER);
 
@@ -148,8 +148,8 @@ public class SearchMethods {
             LinkedList<State> possible = checkPossibleDescendants(n.getState(), method, n);
             LinkedList<Node> nodes = new LinkedList<>();
             for(State s : possible){
-                if(!explored.contains(s)){
-                    Node aux = new Node(s, n.getDepth() + 1, n.getDepth() + 1);
+                Node aux = new Node(s, n.getDepth() + 1, n.getDepth() + 1);
+                if(!explored.contains(aux)){
                     n.addToDescendants(aux);
                     aux.setParent(n);
                     tree.add(aux);
@@ -177,8 +177,8 @@ public class SearchMethods {
         LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
         LinkedList<Node> nodes = new LinkedList<>();
         for(State s : possible){
-            if(!explored.contains(s)){
-                Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+            Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
+            if(!explored.contains(aux)){
                 current.addToDescendants(aux);
                 aux.setParent(current);
                 tree.add(aux);
