@@ -340,6 +340,10 @@ public class SearchMethods {
     public static void main(String[] args) throws IOException {
         long initialTime = System.currentTimeMillis();
         SearchMethods search = new SearchMethods();
+        if (args.length == 0) {
+            System.out.println("Por favor, ingrese un metodo de busqueda");
+            return;
+        }
 /*
         Properties prop = new Properties();
         String propFileName = "config.properties";
@@ -358,11 +362,19 @@ public class SearchMethods {
 */
         String methodStr = args[0];
         if(methodStr.equals("BPPV")) {
+            if (args.length != 2){
+                System.out.println("Por favor, ingrese una profundidad inicial para BPPV");
+                return;
+            }
             int BPPVDepthStr = Integer.parseInt(args[1]);
             search.setDepth(BPPVDepthStr);
         }
 
         if(methodStr.equals("LOCAL_BACK") || methodStr.equals("LOCAL_NO_BACK") || methodStr.equals("GLOBAL") || methodStr.equals("A_STAR")) {
+            if (args.length != 2){
+                System.out.println("Por favor, ingrese una heuristica");
+                return;
+            }
             String heuristicStr = args[1];
             Heuristic heuristic;
             switch (heuristicStr) {
