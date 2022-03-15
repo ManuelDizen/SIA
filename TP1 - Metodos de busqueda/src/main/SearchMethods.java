@@ -16,9 +16,10 @@ public class SearchMethods {
     private Heuristic h;
     private Method method;
     private boolean compareDepths;
+    private int limit = MAX_DEPTH;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
-    private static final int MAX_DEPTH = 200;
+    private static final int MAX_DEPTH = 150;
     private LinkedList<Node> tree = new LinkedList<>();
     private LinkedList<Node> leaves = new LinkedList<>();
     private LinkedList<Node> explored = new LinkedList<>();
@@ -82,26 +83,12 @@ public class SearchMethods {
 
                 for(State s : possible){
                     Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
-                    boolean wasExplored = false;
-                    if(!compareDepths) {
-                        if(explored.contains(aux))
-                            wasExplored = true;
-                    } else {
-                        for(Node n : explored) {
-                            if(n.getDepth() == aux.getDepth() && n.getState().equals(aux.getState()))
-                                wasExplored = true;
-                        }
-                    }
-
-                    if(!wasExplored) {
-                        if(aux.getDepth() <= limit) {
-                            current.addToDescendants(aux);
-                            aux.setParent(current);
-                            tree.add(aux);
-                            leaves.add(aux);
-                            explored.add(aux);
-                            //System.out.println(String.format("%d, %d, %d", s.getTower(0), s.getTower(1), s.getTower(2)));
-                        }
+                    if(!explored.contains(aux)){
+                        current.addToDescendants(aux);
+                        aux.setParent(current);
+                        tree.add(aux);
+                        leaves.add(aux);
+                        explored.add(aux);
                     }
                 }
 
@@ -137,7 +124,6 @@ public class SearchMethods {
                 return generateReturnNode(n);
             }
             LinkedList<State> possible = checkPossibleDescendants(n.getState(), method, n);
-            LinkedList<Node> nodes = new LinkedList<>();
             for(State s : possible){
                 Node aux = new Node(s, n.getDepth() + 1, n.getDepth() + 1);
                 if(!explored.contains(aux)){
@@ -146,11 +132,10 @@ public class SearchMethods {
                     tree.add(aux);
                     leaves.add(aux);
                     explored.add(aux);
-                    nodes.add(aux);
                 }
             }
-            nodes.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
-            returnNode toRet = searchLocalWithBack(nodes);
+            leaves.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
+            returnNode toRet = searchLocalWithBack(leaves);
             list.remove(n);
             if (toRet.result)
                 return toRet;
@@ -166,7 +151,6 @@ public class SearchMethods {
             return generateReturnNode(current);
         }
         LinkedList<State> possible = checkPossibleDescendants(current.getState(), method, current);
-        LinkedList<Node> nodes = new LinkedList<>();
         for(State s : possible){
             Node aux = new Node(s, current.getDepth() + 1, current.getDepth() + 1);
             if(!explored.contains(aux)){
@@ -175,13 +159,12 @@ public class SearchMethods {
                 tree.add(aux);
                 leaves.add(aux);
                 explored.add(aux);
-                nodes.add(aux);
             }
         }
-        nodes.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
-        if (nodes.isEmpty())
+        leaves.sort((o1, o2) -> h.getHValue(o1.getState()) - h.getHValue(o2.getState()));
+        if (leaves.isEmpty())
             return searchLocalNoBack(null);
-        return searchLocalNoBack(nodes.getFirst());
+        return searchLocalNoBack(leaves.getFirst());
     }
 
     private returnNode generateReturnNode(Node current) {
@@ -272,8 +255,8 @@ public class SearchMethods {
         for (int i = limit; i < MAX_DEPTH; i++){
             leaves = new LinkedList<>();
             leaves.add(firstNode);
-            explored = new LinkedList<>();
             tree = new LinkedList<>();
+            explored = new LinkedList<>();
             returnNode aux = searchBPPVRecInc(i);
             if (aux != null)
                 return aux;
@@ -282,6 +265,7 @@ public class SearchMethods {
         for (int i = limit; i >= 0; i--){
             leaves = new LinkedList<>();
             leaves.add(firstNode);
+            tree = new LinkedList<>();
             explored = new LinkedList<>();
             tree = new LinkedList<>();
             returnNode aux = searchBPPVRecDec(i);
@@ -302,8 +286,8 @@ public class SearchMethods {
             return null;
         LinkedList<State> possible = checkPossibleDescendants(first.getState(), method, first);
         for(State s : possible){
-            if(!explored.contains(s)){
-                Node aux = new Node(s, first.getDepth() + 1, first.getDepth() + 1);
+            Node aux = new Node(s, first.getDepth() + 1, first.getDepth() + 1);
+            if(!explored.contains(aux)){
                 first.addToDescendants(aux);
                 aux.setParent(first);
                 tree.add(aux);
@@ -326,8 +310,8 @@ public class SearchMethods {
             return null;
         LinkedList<State> possible = checkPossibleDescendants(first.getState(), method, first);
         for(State s : possible){
-            if(!explored.contains(s)){
-                Node aux = new Node(s, first.getDepth() + 1, first.getDepth() + 1);
+            Node aux = new Node(s, first.getDepth() + 1, first.getDepth() + 1);
+            if(!explored.contains(aux)){
                 first.addToDescendants(aux);
                 aux.setParent(first);
                 tree.add(aux);
@@ -416,7 +400,7 @@ public class SearchMethods {
         State s = search.getFirstState();
         Node i = search.setFirstNode();
 
-        returnNode n = search.Search(i, s, Method.BPA);
+        returnNode n = search.Search(i, s, method);
 
         long endingTime = System.currentTimeMillis();
         long totalTime = (endingTime - initialTime);
