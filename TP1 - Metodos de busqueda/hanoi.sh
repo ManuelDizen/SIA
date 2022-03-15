@@ -1,3 +1,4 @@
 #!/bin/bash
 
-java -cp ./src/target/TP1-MetodosDeBusqueda-1.0.jar main.java.SearchMethods $1 $2 $3 $4
+java -jar ./out/artifacts/TP1___Metodos_de_busqueda_jar/TP1\ -\ Metodos\ de\ busqueda.jar A_STAR 3
+
