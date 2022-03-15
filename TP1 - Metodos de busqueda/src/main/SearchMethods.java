@@ -17,9 +17,10 @@ public class SearchMethods {
     private Heuristic h;
     private Method method;
     private boolean compareDepths;
+    private int depth = MAX_DEPTH;
     private static final long EMPTY_TOWER = 8;
     private static final long COMPLETE_TOWER = 87654321;
-    private static final int MAX_DEPTH = 150;
+    private static final int MAX_DEPTH = 500;
     private int limit = MAX_DEPTH;
     private LinkedList<Node> tree = new LinkedList<>();
     private LinkedList<Node> leaves = new LinkedList<>();
@@ -339,7 +340,7 @@ public class SearchMethods {
     public static void main(String[] args) throws IOException {
         long initialTime = System.currentTimeMillis();
         SearchMethods search = new SearchMethods();
-
+/*
         Properties prop = new Properties();
         String propFileName = "config.properties";
 
@@ -354,14 +355,15 @@ public class SearchMethods {
         String heuristicStr = prop.getProperty("heuristic");
         String BPPVDepthStr = prop.getProperty("BPPVDepth");
         inputStream.close();
-
-        methodStr = args[0];
+*/
+        String methodStr = args[0];
         if(methodStr.equals("BPPV")) {
-            BPPVDepthStr = args[1];
-            search.setDepth(Integer.parseInt(BPPVDepthStr));
+            int BPPVDepthStr = Integer.parseInt(args[1]);
+            search.setDepth(BPPVDepthStr);
         }
+
         if(methodStr.equals("LOCAL_BACK") || methodStr.equals("LOCAL_NO_BACK") || methodStr.equals("GLOBAL") || methodStr.equals("A_STAR")) {
-            heuristicStr = args[1];
+            String heuristicStr = args[1];
             Heuristic heuristic;
             switch (heuristicStr) {
                 case "1":
@@ -392,7 +394,6 @@ public class SearchMethods {
             default: System.out.println("Método inválido"); return;
         }
         search.setMethod(method);
-
 
         State s = search.getFirstState();
         Node i = search.setFirstNode();
