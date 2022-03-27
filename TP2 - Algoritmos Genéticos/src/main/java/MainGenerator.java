@@ -17,6 +17,12 @@ public class MainGenerator {
             }
         }*/
 
+        /* Para leer un config desde un jar (no chequeado pero fue lo que encontre en internet):
+
+        InputStream inputStream = Main.class.getResourceAsStream(path);
+        InputStreamReader inputReader = new InputStreamReader(inputStream);
+         */
+
         ArrayList<Individual> gen = new ArrayList<>();
         for(int i = 0; i < GEN_SIZE; i++){
             gen.add(new Individual());
