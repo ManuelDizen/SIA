@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Reproduction {
 
@@ -20,9 +18,28 @@ public class Reproduction {
         return returnList;
     }
 
-    public ArrayList<Individual> multiplePoint(Individual i1, Individual i2, int nOfPoints){
+    public ArrayList<Individual> multiplePoint(Individual i1, Individual i2, ArrayList<Integer> points){
         // TODO: Pensar como ir "alternando" con n puntos
-        return null;
+        Individual newI1 = new Individual();
+        Individual newI2 = new Individual();
+        int change = 0;
+        for(int i = 0; i < IND_SIZE; i++){
+            if(points.contains(i)){
+                change = ((change == 0)? 1 : 0);
+            }
+            if(change == 0){
+                newI1.setValueAtIdx(i, i1.getValAtIdx(i));
+                newI2.setValueAtIdx(i, i2.getValAtIdx(i));
+            }
+            else{
+                newI1.setValueAtIdx(i, i2.getValAtIdx(i));
+                newI2.setValueAtIdx(i, i1.getValAtIdx(i));
+            }
+        }
+        ArrayList<Individual> returnList = new ArrayList<Individual>();
+        returnList.add(newI1);
+        returnList.add(newI2);
+        return returnList;
     }
 
     public ArrayList<Individual> uniform(Individual i1, Individual i2){
