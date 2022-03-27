@@ -1,6 +1,7 @@
+import java.util.Comparator;
 import java.util.Random;
 
-public class Individual {
+public class Individual{
     private final int IND_SIZE = 11;
     private Double[] values = new Double[IND_SIZE];
     private double fitness;
@@ -65,5 +66,22 @@ public class Individual {
 
     public double getValAtIdx(int idx) {
         return this.values[idx];
+    }
+
+
+    @Override
+    public boolean equals(Object o){
+        if(this == o){
+            return true;
+        }
+        if(o == null || this.getClass() != o.getClass())
+            return false;
+        Individual ind = (Individual) o;
+        for(int i = 0; i < IND_SIZE; i++){
+            if(this.getValAtIdx(i) != ind.getValAtIdx(i)){
+                return false;
+            }
+        }
+        return true;
     }
 }
