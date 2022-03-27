@@ -31,21 +31,18 @@ public class Selection {
         */
         ArrayList<Individual> newGen = new ArrayList<>();
         ArrayList<Individual> competitors = new ArrayList<>();
-        int aux = -1;
-        int prevIdx = -2;
         double u = 0;
         while(newGen.size() < GEN_SIZE){
             competitors.clear();
             u = rand.nextDouble() * (1.0 - 0.5) + 0.5;
-            aux = -1;
-            prevIdx = -2;
+            Collections.shuffle(gen);
+            /*
+            Para randomziar selección de individuos, hago shuffle a toda la generación
+            (no es relevante su orden en este caso) y tomo los primeros 4. Todos tienen la
+            misma chance de ser escogidos, y en cada iteración uno esperaría 4 individuos distintos.
+             */
             for(int i = 0; i < 4; i++){
-                aux = rand.nextInt() % gen.size();
-                if(aux == prevIdx){
-                    aux = (aux+1) == gen.size()? 0:aux+1; // "Circular"
-                }
-                competitors.add(gen.get(aux));
-                prevIdx = aux;
+                competitors.add(gen.get(i));
             }
             Individual winner1 = getWinner(competitors.get(0), competitors.get(1), u);
             Individual winner2 = getWinner(competitors.get(2), competitors.get(3), u);
