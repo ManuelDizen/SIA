@@ -20,6 +20,9 @@ public class Reproduction {
 
     public ArrayList<Individual> multiplePoint(Individual i1, Individual i2, ArrayList<Integer> points){
         // TODO: Pensar como ir "alternando" con n puntos
+        /*
+        Update: creo que lo resolvi. Cambias el orden de inserción por cada punto que este en points.
+         */
         Individual newI1 = new Individual();
         Individual newI2 = new Individual();
         int change = 0;

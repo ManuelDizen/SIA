@@ -12,7 +12,59 @@ public class Selection {
     }
 
     public ArrayList<Individual> roulette(ArrayList<Individual> gen){
-        return null;
+        /*
+        Aca hay un tema, y es que nuestra función de fitness devuelve valores negativos.
+        Esto lo hacemos xq en realidad nuestra función de fitness es la de error,
+        la cual nosotros sabemos que, cuanto mas chica sea, "mejor" es. Al ser un requerimiento
+        que le "mejor" fitness sea el numero mas grande, se multiplican todos los valores por -1,
+        dejando así el orden invertido, y el numero mas chico paso a ser el mas grande.
+
+        Pero esto presenta un problema al usar metodos de selección, dado que
+        para hacer las probabilidades relativas, uno hace f(i) / suma de todas las f(i),
+        y en ese caso es favorable para los individuos de peor fitness.
+
+        Por ello, intentaré hacerlo con probabilidades relativas sobre 1/f(i).
+        De esta manera, quedarán los valores mas cercanos a 0 con mejor probabilidad.
+
+        TODO: En cuanto a código, es SUPER Optimizable. Yo estoy medio tosco pero
+        guardar los "rangos" entre individuos es innecesario, se puede ir comparando con el rand.
+
+         */
+        double accum_fitness = 0.0;
+        double cum_freq = 0.0;
+
+        ArrayList<Individual> returnList = new ArrayList<>();
+        ArrayList<Double> values = new ArrayList<>();
+
+        for(int i = 0; i < gen.size(); i++){
+            double aux = 1.0/gen.get(i).getFitness();
+            values.add(i, aux); // No hace falta que esten en orden, el rango solo alcanza
+            accum_fitness += aux;
+        }
+        for(int i = 0; i < gen.size(); i++){
+            double aux = values.get(i)/accum_fitness;
+            values.set(i, cum_freq + aux );
+            cum_freq += aux;
+        }
+
+        // Aca ya tengo calculados los rangos para p, así que
+        // puedo iterar hasta tener GEN_SIZE elementos en returnList
+        int i = 0;
+
+        Random rand = new Random();
+        double p = rand.nextDouble();
+
+        while(returnList.size() < GEN_SIZE){
+            i = 0;
+            while(p > values.get(i) || i == values.size()-1){
+                i++;
+            }
+            if(!returnList.contains(gen.get(i))){
+                returnList.add(gen.get(i));
+            }
+            p = rand.nextDouble();
+        }
+        return returnList;
     }
 
     public ArrayList<Individual> rank(ArrayList<Individual> gen){
