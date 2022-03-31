@@ -1,17 +1,19 @@
 import java.util.*;
 
 public class Selection {
-    private final int GEN_SIZE = 100;
+    private final int GEN_SIZE = 10;
     private final int TRUNC_N = 120;
 
     public ArrayList<Individual> elite(ArrayList<Individual> gen){
         gen.sort(Comparator.comparingDouble(Individual::getFitness));
+        Collections.reverse(gen);
         //TODO: Chequear si los devuelve de menor a mayor o al reves (si no cambiar indices de subList)
-        gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE)); // Izq: Inclusivo, Der: Exclusivo (0-99)
+        gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE));
+        // Izq: Inclusivo, Der: Exclusivo (0-99)
         return gen;
     }
 
-    public ArrayList<Individual> roulette(ArrayList<Individual> gen){
+    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim){
         /*
         Aca hay un tema, y es que nuestra función de fitness devuelve valores negativos.
         Esto lo hacemos xq en realidad nuestra función de fitness es la de error,
@@ -32,20 +34,24 @@ public class Selection {
          */
         double accum_fitness = 0.0;
         double cum_freq = 0.0;
+        double aux = 0.0;
 
         ArrayList<Individual> returnList = new ArrayList<>();
         ArrayList<Double> values = new ArrayList<>();
 
         for(int i = 0; i < gen.size(); i++){
-            double aux = 1.0/gen.get(i).getFitness();
-            values.add(i, aux); // No hace falta que esten en orden, el rango solo alcanza
+            aux = 1.0/gen.get(i).getFitness();
+            values.add(i, aux);// No hace falta que esten en orden, el rango solo alcanza
             accum_fitness += aux;
         }
+
         for(int i = 0; i < gen.size(); i++){
-            double aux = values.get(i)/accum_fitness;
+            aux = values.get(i)/accum_fitness;
             values.set(i, cum_freq + aux );
             cum_freq += aux;
+            //System.out.println("cum freq " + i + ": " + cum_freq);
         }
+
 
         // Aca ya tengo calculados los rangos para p, así que
         // puedo iterar hasta tener GEN_SIZE elementos en returnList
@@ -54,11 +60,15 @@ public class Selection {
         Random rand = new Random();
         double p = rand.nextDouble();
 
-        while(returnList.size() < GEN_SIZE){
+        while(returnList.size() < dim){
+            //System.out.println("p:" + p);
+            //System.out.println("size:" + returnList.size());
             i = 0;
-            while(p > values.get(i) || i == values.size()-1){
+            while(i<values.size()-1 && p > values.get(i)){
                 i++;
             }
+            //System.out.println("i:" + i);
+            //System.out.println("fitness: " + (values.get(i)-values.get(i-1)));
             if(!returnList.contains(gen.get(i))){
                 returnList.add(gen.get(i));
             }
@@ -133,3 +143,4 @@ public class Selection {
 
 
 }
+
