@@ -1,11 +1,12 @@
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
 
-public class Individual{
+public class Individual implements Comparable<Individual> {
     private final int IND_SIZE = 11;
     private Double[] values = new Double[IND_SIZE];
     private double fitness;
-    private final int LIMIT = 100;
+    private final int LIMIT = 10;
 
     //TODO: Mover samples a archivo de config
     private final int SAMPLE_SIZE = 3;
@@ -45,7 +46,7 @@ public class Individual{
                 //X = (W0, W1, W2, w11, w12, w13, w21, w22, w23, w01, w02)
                 //TODO: Modularizar in y out para pasarlos a archivo externo //
                 // Pasar a clase general y usar un getter (se estan creando los valores en cada instancia)
-                sum2 += ( (values[(j*3) + (k-1)] * in[u][k]) - values[(j*3)] );
+                sum2 += ( (values[(j*3) + (k-1)] * in[u][k-1]) - values[(8+j)] );
             }
             sum += ((values[j] * logistic(sum2)) - values[0]);
         }
@@ -83,5 +84,25 @@ public class Individual{
             }
         }
         return true;
+    }
+
+
+    @Override
+    public int compareTo(Individual o) {
+        int ret = Double.compare(o.getFitness(), fitness);
+        return (ret == 0 ? 1 : ret);
+    }
+
+    @Override
+    public String toString() {
+
+        StringBuilder str = new StringBuilder();
+
+        str.append("fitness: ").append(getFitness()).append("- ");
+        for(Double d : values) {
+            str.append(d).append(", ");
+        }
+
+        return str.toString();
     }
 }
