@@ -74,7 +74,49 @@ public class Selection {
     }
 
     public ArrayList<Individual> rank(ArrayList<Individual> gen){
-        return null;
+        ArrayList<Individual> returnList = new ArrayList<>();
+        ArrayList<Double> values = new ArrayList<>();
+
+        //Primero tenemos que sortear los nodos de mayor a menor.
+        //Copio el array para no modificar el original
+
+        ArrayList<Individual> rank = new ArrayList<>(gen);
+
+        rank.sort(Comparator.comparingDouble(Individual::getFitness));
+        Collections.reverse(rank);
+
+        double accum_f1 = 0.0;
+        double sum_f1 = 0.0;
+        double aux;
+
+        for (int i = 0; i < rank.size(); i++){
+            aux = (gen.size()-(rank.indexOf(gen.get(i))+1))/(double)gen.size(); //El primer indice tiene que ser 1
+            values.add(i, aux);
+            accum_f1 += aux;
+        }
+
+        for(int i = 0; i < gen.size(); i++){
+            aux = values.get(i)/accum_f1;
+            values.set(i, sum_f1 + aux );
+            sum_f1 += aux;
+        }
+
+        int i = 0;
+
+        Random rand = new Random();
+        double p = rand.nextDouble();
+
+        while(returnList.size() < GEN_SIZE){
+            i = 0;
+            while(i < values.size()-1 && p > values.get(i))
+                i++;
+            if(!returnList.contains(gen.get(i))){
+                returnList.add(gen.get(i));
+            }
+            p = rand.nextDouble();
+        }
+
+        return returnList;
     }
 
     public ArrayList<Individual> tournament(ArrayList<Individual> gen){

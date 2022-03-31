@@ -73,6 +73,7 @@ public class MainGenerator {
 //            System.out.println("----------------------------------------------");
 //
 //            System.out.println("gen size: " + gen.size());
+            sel = SelectionMethod.RANK;
             switch (sel) {
                 case ELITE:
                     gen = s.elite(gen);
@@ -81,6 +82,7 @@ public class MainGenerator {
                     gen = s.roulette(gen, GEN_SIZE);
                     break;
                 case RANK:
+                    gen = s.rank(gen);
                     break;
                 case TOURNAMENT:
                     gen = s.tournament(gen);
