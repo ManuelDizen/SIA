@@ -1,10 +1,13 @@
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Random;
-import java.util.TreeSet;
 
 public class MainGenerator {
-    private static final int GEN_SIZE = 10;
+    private static final int GEN_SIZE = 100;
+    private static final int MAX_GENS = 2000;
+    private static final long MAX_TIME = 10 * 60 * 1000; // 10 minutes
+    private static final double EPSILON = -0.0000000001;
+    private static final int FITNESS_CONTENT_MAX = 10;
+
+    private static long INITIAL_T;
     private static ArrayList<Individual> gen = new ArrayList<>();
 
     private static void initialPopulation() {
@@ -15,7 +18,10 @@ public class MainGenerator {
 
 
     private static void algorithm(SelectionMethod sel, ReproductionMethod rep, double pMutation) {
+        long executionTime = INITIAL_T;
         int gens = 0;
+        int bestFitnessAcum = 0;
+        double prevFitness = -1;
         Selection s = new Selection();
         Reproduction r = new Reproduction();
         Mutation m = new Mutation();
@@ -23,8 +29,9 @@ public class MainGenerator {
         ArrayList<Individual> children = new ArrayList<>();
 
 
-
-        while(gens < 3) {
+        while(gens < MAX_GENS && (executionTime - INITIAL_T < MAX_TIME)
+        && currentBestFitness(gen) < EPSILON && (bestFitnessAcum < FITNESS_CONTENT_MAX)){
+            //TODO: Agregar condición con desviación estandar
             ArrayList<Individual> newGen = new ArrayList<>();
             while(newGen.size() < GEN_SIZE) {
                 parents = s.roulette(gen, 2);
@@ -76,6 +83,7 @@ public class MainGenerator {
                 case RANK:
                     break;
                 case TOURNAMENT:
+                    gen = s.tournament(gen);
                     break;
                 case BOLTZMANN:
                     break;
@@ -89,25 +97,30 @@ public class MainGenerator {
 //            }
 //            System.out.println("----------------------------------------------");
             gens++;
-
+            executionTime += (System.currentTimeMillis() - executionTime);
+            if(bestFitnessAcum == 0 || prevFitness == currentBestFitness(gen)){
+                bestFitnessAcum++;
+            }
+            else{
+                bestFitnessAcum = 0;
+            }
         }
 
+    }
+
+    static double currentBestFitness(ArrayList<Individual> gen){
+        double max = 1;
+        for(Individual i : gen){
+            if(max == 1 || max < i.getFitness()){
+                max = i.getFitness();
+            }
+        }
+        return max;
     }
 
 
 
     public static void main(String[] args) {
-        // X = (W0, W1, W2, w11, w12, w13, w21, w22, w23, w01, w02)
-        /*Double[][] generation = new Double[GEN_SIZE][IND_SIZE];
-        Random rand = new Random();
-        for(int i = 0; i < GEN_SIZE; i++){
-            for(int j = 0; j < IND_SIZE; j++){
-                generation[i][j] = rand.nextDouble()*100; // calculo valor de rand entre 0 y 100
-                if(rand.nextDouble() < 0.5){
-                    generation[i][j] = generation[i][j] * -1; // 50-50 que sea negativo
-                }
-            }
-        }*/
 
         /* Para leer un config desde un jar (no chequeado pero fue lo que encontre en internet):
 
@@ -115,21 +128,25 @@ public class MainGenerator {
         InputStreamReader inputReader = new InputStreamReader(inputStream);
          */
 
-
-//        for (int i = 0; i < GEN_SIZE; i++) {
-//            gen.add(new Individual());
-//        }
-//
-//        gen.sort(Comparator.comparingDouble(Individual::getFitness));
-//
-//        for (Individual ind : gen) {
-//            System.out.println(ind.getFitness());
-//        }
-//
-//        System.out.println(gen.size());
-
+        INITIAL_T = System.currentTimeMillis();
         initialPopulation();
         algorithm(SelectionMethod.ELITE, ReproductionMethod.SINGLEPOINT, 0.5);
+        System.out.println("Individuo: " );
+        String[] array = {"W0", "W1", "W2", "w11", "w12", "w13", "w21", "w22", "w23", "w01", "w02"};
+        Individual j = getBestIndividual(gen);
+        for(int i = 0; i < j.getIndSize(); i++){
+            System.out.println(array[i] + ": " + j.getValAtIdx(i));
+        }
+        System.out.println("Fitness de mejor individuo: " + currentBestFitness(gen));
+    }
 
+    static Individual getBestIndividual(ArrayList<Individual> gen){
+        Individual max  = null;
+        for(Individual i : gen){
+            if(max == null || max.getFitness() < i.getFitness()){
+                max = i;
+            }
+        }
+        return max;
     }
 }

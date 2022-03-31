@@ -105,4 +105,8 @@ public class Individual implements Comparable<Individual> {
 
         return str.toString();
     }
+
+    public int getIndSize() {
+        return IND_SIZE;
+    }
 }

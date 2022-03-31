@@ -4,12 +4,14 @@ public class Mutation {
     private final double MUTATION_P = 0.01;
     private final double MAX_DISTURBANCE = 5;
 
-
     public Individual mutate(Individual ind){
         Random r = new Random();
         double p = r.nextDouble();
+
+        // "Modificación aleatoria en UN gen de UN cromosoma" del ppt
+
         if(p < MUTATION_P){
-            int idx = r.nextInt()%11; // Altero valor random en mutación
+            int idx = Math.abs(r.nextInt()%11); // Altero valor random en mutación
 
             // Elijo un indice random del individuo, lo altero hasta MAX_DISTURBANCE, y el
             // signo de la perturbación lo define un nuevo valor aleatorio.

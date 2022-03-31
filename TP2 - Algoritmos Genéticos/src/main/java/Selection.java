@@ -7,7 +7,6 @@ public class Selection {
     public ArrayList<Individual> elite(ArrayList<Individual> gen){
         gen.sort(Comparator.comparingDouble(Individual::getFitness));
         Collections.reverse(gen);
-        //TODO: Chequear si los devuelve de menor a mayor o al reves (si no cambiar indices de subList)
         gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE));
         // Izq: Inclusivo, Der: Exclusivo (0-99)
         return gen;
@@ -27,9 +26,6 @@ public class Selection {
 
         Por ello, intentaré hacerlo con probabilidades relativas sobre 1/f(i).
         De esta manera, quedarán los valores mas cercanos a 0 con mejor probabilidad.
-
-        TODO: En cuanto a código, es SUPER Optimizable. Yo estoy medio tosco pero
-        guardar los "rangos" entre individuos es innecesario, se puede ir comparando con el rand.
 
          */
         double accum_fitness = 0.0;
@@ -134,10 +130,10 @@ public class Selection {
 
     public ArrayList<Individual> truncated(ArrayList<Individual> gen){
         gen.sort(Comparator.comparingDouble(Individual::getFitness));
+        Collections.reverse(gen);
         gen = new ArrayList<Individual>(gen.subList(0, TRUNC_N - 1));
         Collections.shuffle(gen);
         gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE));
-        //TODO: Mismo de arriba, ver como reordena el comparingDouble
         return gen;
     }
 
