@@ -3,6 +3,10 @@ import java.util.*;
 public class Selection {
     private final int GEN_SIZE = 10;
     private final int TRUNC_N = 120;
+     private static final double T0 = 2.0;
+    private static final double TC = 0.5;
+    private static final double K = 0.005;
+    private ArrayList<Double> values = new ArrayList<>();
 
     public ArrayList<Individual> elite(ArrayList<Individual> gen){
         gen.sort(Comparator.comparingDouble(Individual::getFitness));
@@ -12,7 +16,7 @@ public class Selection {
         return gen;
     }
 
-    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim){
+    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann){
         /*
         Aca hay un tema, y es que nuestra función de fitness devuelve valores negativos.
         Esto lo hacemos xq en realidad nuestra función de fitness es la de error,
@@ -27,28 +31,18 @@ public class Selection {
         Por ello, intentaré hacerlo con probabilidades relativas sobre 1/f(i).
         De esta manera, quedarán los valores mas cercanos a 0 con mejor probabilidad.
 
+        TODO: En cuanto a código, es SUPER Optimizable. Yo estoy medio tosco pero
+        guardar los "rangos" entre individuos es innecesario, se puede ir comparando con el rand.
+
          */
-        double accum_fitness = 0.0;
-        double cum_freq = 0.0;
-        double aux = 0.0;
+
 
         ArrayList<Individual> returnList = new ArrayList<>();
-        ArrayList<Double> values = new ArrayList<>();
 
-        for(int i = 0; i < gen.size(); i++){
-            aux = 1.0/gen.get(i).getFitness();
-            values.add(i, aux);// No hace falta que esten en orden, el rango solo alcanza
-            accum_fitness += aux;
-        }
+        if(gen.size() != values.size())
+            values = calcFreqs(gen, boltzmann);
 
-        for(int i = 0; i < gen.size(); i++){
-            aux = values.get(i)/accum_fitness;
-            values.set(i, cum_freq + aux );
-            cum_freq += aux;
-            //System.out.println("cum freq " + i + ": " + cum_freq);
-        }
-
-
+        Map<Individual, Integer> times = new HashMap<>();
         // Aca ya tengo calculados los rangos para p, así que
         // puedo iterar hasta tener GEN_SIZE elementos en returnList
         int i = 0;
@@ -56,23 +50,75 @@ public class Selection {
         Random rand = new Random();
         double p = rand.nextDouble();
 
+
+
         while(returnList.size() < dim){
+
             //System.out.println("p:" + p);
             //System.out.println("size:" + returnList.size());
             i = 0;
             while(i<values.size()-1 && p > values.get(i)){
                 i++;
             }
+            //System.out.println(" times picked: " + times.get(gen.get(i)));
+
+            if(!times.containsKey(gen.get(i)))
+                times.put(gen.get(i), 0);
+
+
+
+                //if(boltzmann)
+                  //  System.out.println("no");
+                if(!returnList.contains(gen.get(i))){
+                    returnList.add(gen.get(i));
+                } else {
+                    times.put(gen.get(i), times.get(gen.get(i))+1);
+
+                    if(times.get(gen.get(i)) >= 20) {
+                        gen.remove(i);
+                        values = calcFreqs(gen, boltzmann);
+                    }
+                }
+                p = rand.nextDouble();
+
             //System.out.println("i:" + i);
             //System.out.println("fitness: " + (values.get(i)-values.get(i-1)));
-            if(!returnList.contains(gen.get(i))){
-                returnList.add(gen.get(i));
-            }
-            p = rand.nextDouble();
+
         }
+
+
         return returnList;
     }
 
+    private ArrayList<Double> calcFreqs(ArrayList<Individual> gen, boolean boltzmann) {
+
+        ArrayList<Double> values = new ArrayList<>();
+
+        double accum_fitness = 0.0;
+        double cum_freq = 0.0;
+        double aux = 0.0;
+
+
+        for(int i = 0; i < gen.size(); i++){
+            aux = (boltzmann ? 1.0/gen.get(i).getBoltzmannFitness() : 1.0/gen.get(i).getFitness());
+            values.add(i, aux);// No hace falta que esten en orden, el rango solo alcanza
+            accum_fitness += aux;
+        }
+
+
+
+        for(int i = 0; i < gen.size(); i++){
+            aux = values.get(i)/accum_fitness;
+            values.set(i, cum_freq + aux );
+            cum_freq += aux;
+            //System.out.println("i: " + i + " cumfreq: " + cum_freq);
+
+        }
+
+        return values;
+    }
+
+    
     public ArrayList<Individual> rank(ArrayList<Individual> gen){
         ArrayList<Individual> returnList = new ArrayList<>();
         ArrayList<Double> values = new ArrayList<>();
@@ -166,8 +212,28 @@ public class Selection {
         }
     }
 
-    public ArrayList<Individual> boltzmann(ArrayList<Individual> gen){
-        return null;
+    public ArrayList<Individual> boltzmann(ArrayList<Individual> gen, int numGen){
+
+        double acum = 0;
+
+
+
+        for(Individual i : gen) {
+            i.setBoltzmannFitness((Math.exp(i.getFitness()/(TC - (T0 - TC)*Math.exp(-K*numGen)))));
+            acum += i.getBoltzmannFitness();
+        }
+
+
+
+
+        for(Individual i : gen) {
+            i.setBoltzmannFitness(-1*i.getBoltzmannFitness()/acum);
+            //System.out.println("i: " + i + " boltzfitness: " + i.getBoltzmannFitness());
+        }
+
+
+
+        return roulette(gen, gen.size()/2, true);
     }
 
     public ArrayList<Individual> truncated(ArrayList<Individual> gen){
