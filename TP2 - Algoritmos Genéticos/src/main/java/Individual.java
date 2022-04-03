@@ -6,6 +6,7 @@ public class Individual implements Comparable<Individual> {
     private final int IND_SIZE = 11;
     private Double[] values = new Double[IND_SIZE];
     private double fitness;
+    private double boltzmannFitness;
     private final int LIMIT = 10;
 
     //TODO: Mover samples a archivo de config
@@ -59,6 +60,14 @@ public class Individual implements Comparable<Individual> {
 
     public Double getFitness() {
         return this.fitness;
+    }
+    
+    public double getBoltzmannFitness() {
+        return boltzmannFitness;
+    }
+
+    public void setBoltzmannFitness(double fitness) {
+        this.boltzmannFitness = fitness;
     }
 
     public void setValueAtIdx(int idx, double val){
