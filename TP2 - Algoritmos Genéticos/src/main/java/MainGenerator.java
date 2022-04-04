@@ -2,22 +2,24 @@ import java.util.ArrayList;
 
 public class MainGenerator {
     private static final int GEN_SIZE = 100;
-    private static final int MAX_GENS = 2000;
+    private static int MAX_GENS = 10;
     private static final long MAX_TIME = 10 * 60 * 1000; // 10 minutes
     private static final double EPSILON = -0.0000000001;
     private static final int FITNESS_CONTENT_MAX = 10;
 
     private static long INITIAL_T;
     private static ArrayList<Individual> gen = new ArrayList<>();
+    private static ArrayList<Individual> firstGen = new ArrayList<>();
 
     private static void initialPopulation() {
+        gen.clear();
         for (int i = 0; i < GEN_SIZE; i++) {
             gen.add(new Individual());
         }
     }
 
 
-    private static void algorithm(SelectionMethod sel, ReproductionMethod rep, double pMutation) {
+    private static void algorithm(SelectionMethod sel, ReproductionMethod rep) {
         long executionTime = INITIAL_T;
         int gens = 0;
         int bestFitnessAcum = 0;
@@ -28,13 +30,13 @@ public class MainGenerator {
         ArrayList<Individual> parents = new ArrayList<>();
         ArrayList<Individual> children = new ArrayList<>();
 
-
-        while(gens < MAX_GENS && (executionTime - INITIAL_T < MAX_TIME)
-        && currentBestFitness(gen) < EPSILON && (bestFitnessAcum < FITNESS_CONTENT_MAX)){
+        // && (executionTime - INITIAL_T < MAX_TIME)
+        // && currentBestFitness(gen) < EPSILON && (bestFitnessAcum < FITNESS_CONTENT_MAX)
+        while(gens < MAX_GENS){
             //TODO: Agregar condición con desviación estandar
             ArrayList<Individual> newGen = new ArrayList<>();
             while(newGen.size() < GEN_SIZE) {
-                parents = s.roulette(gen, 2);
+                parents = s.roulette(gen, 2, false);
 //                System.out.println("first parent: " + parents.get(0));
 //                System.out.println("second parent: " + parents.get(1));
                 switch(rep) {
@@ -73,13 +75,12 @@ public class MainGenerator {
 //            System.out.println("----------------------------------------------");
 //
 //            System.out.println("gen size: " + gen.size());
-            sel = SelectionMethod.RANK;
             switch (sel) {
                 case ELITE:
                     gen = s.elite(gen);
                     break;
                 case ROULETTE:
-                    gen = s.roulette(gen, GEN_SIZE);
+                    gen = s.roulette(gen, GEN_SIZE, false);
                     break;
                 case RANK:
                     gen = s.rank(gen);
@@ -88,6 +89,10 @@ public class MainGenerator {
                     gen = s.tournament(gen);
                     break;
                 case BOLTZMANN:
+                    gen = s.boltzmann(gen, gens);
+                    break;
+                case TRUNCATED:
+                    gen = s.truncated(gen);
                     break;
             }
 

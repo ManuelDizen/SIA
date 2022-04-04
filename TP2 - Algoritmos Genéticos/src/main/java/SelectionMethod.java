@@ -4,4 +4,5 @@ public enum SelectionMethod {
     RANK,
     TOURNAMENT,
     BOLTZMANN,
+    TRUNCATED
 }
