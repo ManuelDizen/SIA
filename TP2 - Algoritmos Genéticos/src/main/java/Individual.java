@@ -62,7 +62,7 @@ public class Individual implements Comparable<Individual> {
         return this.fitness;
     }
     
-    public double getBoltzmannFitness() {
+    public Double getBoltzmannFitness() {
         return boltzmannFitness;
     }
 

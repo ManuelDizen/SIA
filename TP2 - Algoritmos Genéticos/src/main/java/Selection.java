@@ -1,40 +1,21 @@
 import java.util.*;
 
 public class Selection {
-    private final int GEN_SIZE = 10;
-    private final int TRUNC_N = 120;
-     private static final double T0 = 2.0;
+    private final int GEN_SIZE = 100;
+    private final int TRUNC_N = 60;
+    private static final double T0 = 2.0;
     private static final double TC = 0.5;
     private static final double K = 0.005;
     private ArrayList<Double> values = new ArrayList<>();
 
     public ArrayList<Individual> elite(ArrayList<Individual> gen){
-        gen.sort(Comparator.comparingDouble(Individual::getFitness));
-        Collections.reverse(gen);
-        gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE));
+        Collections.sort(gen);
+        gen = new ArrayList<Individual>(gen.subList(0, gen.size()/2));
         // Izq: Inclusivo, Der: Exclusivo (0-99)
         return gen;
     }
 
-    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann){
-        /*
-        Aca hay un tema, y es que nuestra función de fitness devuelve valores negativos.
-        Esto lo hacemos xq en realidad nuestra función de fitness es la de error,
-        la cual nosotros sabemos que, cuanto mas chica sea, "mejor" es. Al ser un requerimiento
-        que le "mejor" fitness sea el numero mas grande, se multiplican todos los valores por -1,
-        dejando así el orden invertido, y el numero mas chico paso a ser el mas grande.
-
-        Pero esto presenta un problema al usar metodos de selección, dado que
-        para hacer las probabilidades relativas, uno hace f(i) / suma de todas las f(i),
-        y en ese caso es favorable para los individuos de peor fitness.
-
-        Por ello, intentaré hacerlo con probabilidades relativas sobre 1/f(i).
-        De esta manera, quedarán los valores mas cercanos a 0 con mejor probabilidad.
-
-        TODO: En cuanto a código, es SUPER Optimizable. Yo estoy medio tosco pero
-        guardar los "rangos" entre individuos es innecesario, se puede ir comparando con el rand.
-
-         */
+    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann) {
 
 
         ArrayList<Individual> returnList = new ArrayList<>();
@@ -50,39 +31,27 @@ public class Selection {
         Random rand = new Random();
         double p = rand.nextDouble();
 
-
-
         while(returnList.size() < dim){
 
-            //System.out.println("p:" + p);
-            //System.out.println("size:" + returnList.size());
             i = 0;
             while(i<values.size()-1 && p > values.get(i)){
                 i++;
             }
-            //System.out.println(" times picked: " + times.get(gen.get(i)));
 
             if(!times.containsKey(gen.get(i)))
                 times.put(gen.get(i), 0);
 
+            if(!returnList.contains(gen.get(i))){
+                returnList.add(gen.get(i));
+            } else {
+                times.put(gen.get(i), times.get(gen.get(i))+1);
 
-
-                //if(boltzmann)
-                  //  System.out.println("no");
-                if(!returnList.contains(gen.get(i))){
-                    returnList.add(gen.get(i));
-                } else {
-                    times.put(gen.get(i), times.get(gen.get(i))+1);
-
-                    if(times.get(gen.get(i)) >= 20) {
-                        gen.remove(i);
-                        values = calcFreqs(gen, boltzmann);
-                    }
+                if(times.get(gen.get(i)) >= 20) {
+                    gen.remove(i);
+                    values = calcFreqs(gen, boltzmann);
                 }
-                p = rand.nextDouble();
-
-            //System.out.println("i:" + i);
-            //System.out.println("fitness: " + (values.get(i)-values.get(i-1)));
+            }
+            p = rand.nextDouble();
 
         }
 
@@ -100,7 +69,7 @@ public class Selection {
 
 
         for(int i = 0; i < gen.size(); i++){
-            aux = (boltzmann ? 1.0/gen.get(i).getBoltzmannFitness() : 1.0/gen.get(i).getFitness());
+            aux = (boltzmann ? gen.get(i).getBoltzmannFitness() : 1.0/gen.get(i).getFitness());
             values.add(i, aux);// No hace falta que esten en orden, el rango solo alcanza
             accum_fitness += aux;
         }
@@ -122,14 +91,10 @@ public class Selection {
     public ArrayList<Individual> rank(ArrayList<Individual> gen){
         ArrayList<Individual> returnList = new ArrayList<>();
         ArrayList<Double> values = new ArrayList<>();
-
-        //Primero tenemos que sortear los nodos de mayor a menor.
-        //Copio el array para no modificar el original
-
         ArrayList<Individual> rank = new ArrayList<>(gen);
 
-        rank.sort(Comparator.comparingDouble(Individual::getFitness));
-        Collections.reverse(rank);
+        Collections.sort(rank);
+        //Collections.reverse(rank);
 
         double accum_f1 = 0.0;
         double sum_f1 = 0.0;
@@ -167,26 +132,15 @@ public class Selection {
 
     public ArrayList<Individual> tournament(ArrayList<Individual> gen){
         Random rand = new Random();
-        // 0.5 - 1.0
-        /*¿Si hacemos torneo entre 4 individuos, y gana 1 solo, no quedaría una población resultante
-          de P/4 cuando queremos que sea de P/2?
-
-        Update: Solución parcial (aunque sujeta a discusión).
-        Vale hacer que los individuos puedan ser tomados como competidores con reemplazo,
-        pero hay que chequear que haya una población final de P
-        */
         ArrayList<Individual> newGen = new ArrayList<>();
         ArrayList<Individual> competitors = new ArrayList<>();
         double u = 0;
         while(newGen.size() < GEN_SIZE){
             competitors.clear();
-            u = rand.nextDouble() * (1.0 - 0.5) + 0.5;
+            //u = rand.nextDouble() * (1.0 - 0.5) + 0.5;
+            u = 0.8;
             Collections.shuffle(gen);
-            /*
-            Para randomziar selección de individuos, hago shuffle a toda la generación
-            (no es relevante su orden en este caso) y tomo los primeros 4. Todos tienen la
-            misma chance de ser escogidos, y en cada iteración uno esperaría 4 individuos distintos.
-             */
+
             for(int i = 0; i < 4; i++){
                 competitors.add(gen.get(i));
             }
@@ -219,7 +173,7 @@ public class Selection {
 
 
         for(Individual i : gen) {
-            i.setBoltzmannFitness((Math.exp(i.getFitness()/(TC - (T0 - TC)*Math.exp(-K*numGen)))));
+            i.setBoltzmannFitness((Math.exp(i.getFitness()/(TC + (T0 - TC)*Math.exp(-K*numGen)))));
             acum += i.getBoltzmannFitness();
         }
 
@@ -236,12 +190,23 @@ public class Selection {
         return roulette(gen, gen.size()/2, true);
     }
 
+
     public ArrayList<Individual> truncated(ArrayList<Individual> gen){
+       /*MainGenerator m = new MainGenerator();
         gen.sort(Comparator.comparingDouble(Individual::getFitness));
         Collections.reverse(gen);
-        gen = new ArrayList<Individual>(gen.subList(0, TRUNC_N - 1));
+        gen = new ArrayList<Individual>(gen.subList(0, (int)Math.floor(m.getGenSize()*0.6) - 1));
         Collections.shuffle(gen);
-        gen = new ArrayList<Individual>(gen.subList(0, GEN_SIZE));
+        gen = new ArrayList<Individual>(gen.subList(0, m.getGenSize()-1));
+        return gen;*/
+
+        int initialSize = gen.size();
+        Collections.sort(gen);
+        //System.out.println("Mejores 3 fitness pre corte: " + gen.get(0).getFitness() + "  " + gen.get(1).getFitness() + "  " + gen.get(2).getFitness());
+        gen = new ArrayList<Individual>(gen.subList(0, (int) (initialSize*0.6)));
+        //System.out.println("Mejores 3 fitness post corte: " + gen.get(0).getFitness() + "  " + gen.get(1).getFitness() + "  " + gen.get(2).getFitness());
+        Collections.shuffle(gen);
+        gen = new ArrayList<>(gen.subList(0, initialSize/2));
         return gen;
     }
 
