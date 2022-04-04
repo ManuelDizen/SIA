@@ -46,10 +46,8 @@ public class MainGenerator {
                         children = r.singlePoint(parents.get(0), parents.get(1));
                         break;
                     case MULTIPLEPOINT:
-                        ArrayList<Integer> pointList = new ArrayList<>();
-                        pointList.add(3);
-                        pointList.add(7);
-                        children = r.multiplePoint(parents.get(0), parents.get(1), pointList);
+                    
+                        children = r.multiplePoint(parents.get(0), parents.get(1));
                         break;
                     case UNIFORM:
                         children = r.uniform(parents.get(0), parents.get(1));
