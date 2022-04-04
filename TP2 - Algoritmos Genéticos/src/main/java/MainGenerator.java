@@ -120,7 +120,11 @@ public class MainGenerator {
 
         /*INITIAL_T = System.currentTimeMillis();
         initialPopulation();
+<<<<<<< Updated upstream
         algorithm(SelectionMethod.ELITE, ReproductionMethod.SINGLEPOINT);
+=======
+        algorithm(SelectionMethod.RANK, ReproductionMethod.MULTIPLEPOINT);
+>>>>>>> Stashed changes
         System.out.println("Individuo: " );
         String[] array = {"W0", "W1", "W2", "w11", "w12", "w13", "w21", "w22", "w23", "w01", "w02"};
         Individual j = getBestIndividual(gen);

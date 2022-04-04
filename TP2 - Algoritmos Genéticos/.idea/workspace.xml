@@ -4,7 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
+<<<<<<< Updated upstream
     <list default="true" id="b4263a58-8a4f-4256-8493-155c98366cbe" name="Changes" comment="" />
+=======
+    <list default="true" id="b4263a58-8a4f-4256-8493-155c98366cbe" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/MainGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/MainGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Selection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Selection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Individual.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Individual.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/MainGenerator$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/MainGenerator$1.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/MainGenerator.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/MainGenerator.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Mutation.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Mutation.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Reproduction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Reproduction.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/Selection.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Selection.class" afterDir="false" />
+    </list>
+>>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -34,6 +48,10 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.0" />
     <property name="project.structure.side.proportion" value="0.0" />
@@ -70,6 +88,7 @@
       <workItem from="1648728919367" duration="337000" />
       <workItem from="1648729271932" duration="2079000" />
       <workItem from="1648732299621" duration="5595000" />
+      <workItem from="1649085776689" duration="7514000" />
     </task>
     <servers />
   </component>

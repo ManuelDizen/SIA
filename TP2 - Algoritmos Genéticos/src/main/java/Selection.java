@@ -93,6 +93,7 @@ public class Selection {
         ArrayList<Individual> returnList = new ArrayList<>();
         ArrayList<Double> values = new ArrayList<>();
         ArrayList<Individual> rank = new ArrayList<>(gen);
+        Collections.sort(rank);
 
         Collections.sort(rank);
         //Collections.reverse(rank);
@@ -127,6 +128,8 @@ public class Selection {
             }
             p = rand.nextDouble();
         }
+
+
 
         return returnList;
     }
