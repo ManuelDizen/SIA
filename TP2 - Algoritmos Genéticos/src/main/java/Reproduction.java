@@ -26,14 +26,22 @@ public class Reproduction {
         return returnList;
     }
 
-    public ArrayList<Individual> multiplePoint(Individual i1, Individual i2, ArrayList<Integer> points){
-        // TODO: Pensar como ir "alternando" con n puntos
-        /*
-        Update: creo que lo resolvi. Cambias el orden de inserción por cada punto que este en points.
-         */
+    public ArrayList<Individual> multiplePoint(Individual i1, Individual i2){
+        
         Individual newI1 = new Individual();
         Individual newI2 = new Individual();
         int change = 0;
+        Random r = new Random();
+        int p1, p2;
+        ArrayList<Integer> points = new ArrayList<>();
+        do {
+            p1 = Math.abs(r.nextInt())%IND_SIZE;
+        } while(p1 == 0 || p1 == IND_SIZE-1);
+        do {
+            p2 = Math.abs(r.nextInt())%IND_SIZE;
+        } while(p2 == 0 || p2 == IND_SIZE-1 || p2 == p1);
+        points.add(p1);
+        points.add(p2);
         for(int i = 0; i < IND_SIZE; i++){
             if(points.contains(i)){
                 change = ((change == 0)? 1 : 0);

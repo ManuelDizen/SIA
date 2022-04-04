@@ -46,10 +46,8 @@ public class MainGenerator {
                         children = r.singlePoint(parents.get(0), parents.get(1));
                         break;
                     case MULTIPLEPOINT:
-                        ArrayList<Integer> pointList = new ArrayList<>();
-                        pointList.add(3);
-                        pointList.add(7);
-                        children = r.multiplePoint(parents.get(0), parents.get(1), pointList);
+                    
+                        children = r.multiplePoint(parents.get(0), parents.get(1));
                         break;
                     case UNIFORM:
                         children = r.uniform(parents.get(0), parents.get(1));
@@ -96,6 +94,25 @@ public class MainGenerator {
         }
         gensN = gens;
 
+    }
+
+    /* https://www.programiz.com/java-programming/examples/standard-deviation */
+    public static double calculateSD(ArrayList<Individual> gen)
+    {
+        double sum = 0.0, standardDeviation = 0.0;
+        int length = gen.size();
+
+        for(Individual ind : gen) {
+            sum += ind.getFitness();
+        }
+
+        double mean = sum/length;
+
+        for(Individual ind: gen) {
+            standardDeviation += Math.pow(ind.getFitness() - mean, 2);
+        }
+
+        return Math.sqrt(standardDeviation/length);
     }
 
     static double currentBestFitness(ArrayList<Individual> gen){
