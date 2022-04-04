@@ -98,6 +98,25 @@ public class MainGenerator {
 
     }
 
+    /* https://www.programiz.com/java-programming/examples/standard-deviation */
+    public static double calculateSD(ArrayList<Individual> gen)
+    {
+        double sum = 0.0, standardDeviation = 0.0;
+        int length = gen.size();
+
+        for(Individual ind : gen) {
+            sum += ind.getFitness();
+        }
+
+        double mean = sum/length;
+
+        for(Individual ind: gen) {
+            standardDeviation += Math.pow(ind.getFitness() - mean, 2);
+        }
+
+        return Math.sqrt(standardDeviation/length);
+    }
+
     static double currentBestFitness(ArrayList<Individual> gen){
         double max = 1;
         for(Individual i : gen){
