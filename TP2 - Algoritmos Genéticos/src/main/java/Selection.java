@@ -15,7 +15,7 @@ public class Selection {
         return gen;
     }
 
-    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann) {
+    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann) { 
 
 
         ArrayList<Individual> returnList = new ArrayList<>();
@@ -32,23 +32,24 @@ public class Selection {
         double p = rand.nextDouble();
 
         while(returnList.size() < dim){
-
+            
             i = 0;
             while(i<values.size()-1 && p > values.get(i)){
                 i++;
             }
-
+            
             if(!times.containsKey(gen.get(i)))
                 times.put(gen.get(i), 0);
+            
+             if(!returnList.contains(gen.get(i))){
+                    returnList.add(gen.get(i));
+                } else {
+                    times.put(gen.get(i), times.get(gen.get(i))+1);
 
-            if(!returnList.contains(gen.get(i))){
-                returnList.add(gen.get(i));
-            } else {
-                times.put(gen.get(i), times.get(gen.get(i))+1);
-
-                if(times.get(gen.get(i)) >= 20) {
-                    gen.remove(i);
-                    values = calcFreqs(gen, boltzmann);
+                    if(times.get(gen.get(i)) >= 20) {
+                        gen.remove(i);
+                        values = calcFreqs(gen, boltzmann);
+                    }
                 }
             }
             p = rand.nextDouble();
