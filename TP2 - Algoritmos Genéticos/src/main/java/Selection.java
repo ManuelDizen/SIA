@@ -16,25 +16,7 @@ public class Selection {
         return gen;
     }
 
-    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann){
-        /*
-        Aca hay un tema, y es que nuestra función de fitness devuelve valores negativos.
-        Esto lo hacemos xq en realidad nuestra función de fitness es la de error,
-        la cual nosotros sabemos que, cuanto mas chica sea, "mejor" es. Al ser un requerimiento
-        que le "mejor" fitness sea el numero mas grande, se multiplican todos los valores por -1,
-        dejando así el orden invertido, y el numero mas chico paso a ser el mas grande.
-
-        Pero esto presenta un problema al usar metodos de selección, dado que
-        para hacer las probabilidades relativas, uno hace f(i) / suma de todas las f(i),
-        y en ese caso es favorable para los individuos de peor fitness.
-
-        Por ello, intentaré hacerlo con probabilidades relativas sobre 1/f(i).
-        De esta manera, quedarán los valores mas cercanos a 0 con mejor probabilidad.
-
-        TODO: En cuanto a código, es SUPER Optimizable. Yo estoy medio tosco pero
-        guardar los "rangos" entre individuos es innecesario, se puede ir comparando con el rand.
-
-         */
+    public ArrayList<Individual> roulette(ArrayList<Individual> gen, int dim, boolean boltzmann) { 
 
 
         ArrayList<Individual> returnList = new ArrayList<>();
@@ -50,26 +32,17 @@ public class Selection {
         Random rand = new Random();
         double p = rand.nextDouble();
 
-
-
         while(returnList.size() < dim){
-
-            //System.out.println("p:" + p);
-            //System.out.println("size:" + returnList.size());
+            
             i = 0;
             while(i<values.size()-1 && p > values.get(i)){
                 i++;
             }
-            //System.out.println(" times picked: " + times.get(gen.get(i)));
-
+            
             if(!times.containsKey(gen.get(i)))
                 times.put(gen.get(i), 0);
-
-
-
-                //if(boltzmann)
-                  //  System.out.println("no");
-                if(!returnList.contains(gen.get(i))){
+            
+             if(!returnList.contains(gen.get(i))){
                     returnList.add(gen.get(i));
                 } else {
                     times.put(gen.get(i), times.get(gen.get(i))+1);
@@ -80,9 +53,6 @@ public class Selection {
                     }
                 }
                 p = rand.nextDouble();
-
-            //System.out.println("i:" + i);
-            //System.out.println("fitness: " + (values.get(i)-values.get(i-1)));
 
         }
 
@@ -100,7 +70,7 @@ public class Selection {
 
 
         for(int i = 0; i < gen.size(); i++){
-            aux = (boltzmann ? 1.0/gen.get(i).getBoltzmannFitness() : 1.0/gen.get(i).getFitness());
+            aux = (boltzmann ? gen.get(i).getBoltzmannFitness() : 1.0/gen.get(i).getFitness());
             values.add(i, aux);// No hace falta que esten en orden, el rango solo alcanza
             accum_fitness += aux;
         }
@@ -219,7 +189,7 @@ public class Selection {
 
 
         for(Individual i : gen) {
-            i.setBoltzmannFitness((Math.exp(i.getFitness()/(TC - (T0 - TC)*Math.exp(-K*numGen)))));
+            i.setBoltzmannFitness((Math.exp(i.getFitness()/(TC + (T0 - TC)*Math.exp(-K*numGen)))));
             acum += i.getBoltzmannFitness();
         }
 
