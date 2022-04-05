@@ -4,9 +4,9 @@ import java.util.Map;
 
 public class MainGenerator {
     private static final int GEN_SIZE = 100;
-    private static int MAX_GENS = 10;
-    private static final long MAX_TIME = 10 * 60 * 1000; // 10 minutes
-    private static double EPSILON = -0.0000000001;
+    private static int MAX_GENS = 500;
+    private static long MAX_TIME = 1;
+    private static double EPSILON = -0.01;
     private static final int FITNESS_CONTENT_MAX = 10;
     private static int gensN;
 
@@ -34,9 +34,9 @@ public class MainGenerator {
         ArrayList<Individual> parents = new ArrayList<>();
         ArrayList<Individual> children = new ArrayList<>();
 
-        // && (executionTime - INITIAL_T < MAX_TIME)
+        // gens < MAX_GENS && (executionTime - INITIAL_T < MAX_TIME)
         // && currentBestFitness(gen) < EPSILON && (bestFitnessAcum < FITNESS_CONTENT_MAX)
-        while(gens < MAX_GENS){
+        while((executionTime - INITIAL_T < MAX_TIME || gens < MAX_GENS || currentBestFitness(gen) < EPSILON) && (bestFitnessAcum < FITNESS_CONTENT_MAX)){
             //TODO: Agregar condición con desviación estandar
             ArrayList<Individual> newGen = new ArrayList<>();
             while(newGen.size() < GEN_SIZE) {
@@ -129,40 +129,18 @@ public class MainGenerator {
 
     public static void main(String[] args) {
 
-        /* Para leer un config desde un jar (no chequeado pero fue lo que encontre en internet):
-
-        InputStream inputStream = Main.class.getResourceAsStream(path);
-        InputStreamReader inputReader = new InputStreamReader(inputStream);
-         */
-
-        /*INITIAL_T = System.currentTimeMillis();
-        initialPopulation();
-<<<<<<< Updated upstream
-        algorithm(SelectionMethod.ELITE, ReproductionMethod.SINGLEPOINT);
-=======
-        algorithm(SelectionMethod.RANK, ReproductionMethod.MULTIPLEPOINT);
->>>>>>> Stashed changes
-        System.out.println("Individuo: " );
-        String[] array = {"W0", "W1", "W2", "w11", "w12", "w13", "w21", "w22", "w23", "w01", "w02"};
-        Individual j = getBestIndividual(gen);
-        for(int i = 0; i < j.getIndSize(); i++){
-            System.out.println(array[i] + ": " + j.getValAtIdx(i));
-        }
-        System.out.println("Fitness de mejor individuo: " + currentBestFitness(gen));*/
-
         ArrayList<Individual> initialGen = new ArrayList<>(initialPopulation());
         String[] array = {"W0", "W1", "W2", "w11", "w12", "w13", "w21", "w22", "w23", "w01", "w02"};
         //int[] genLimit = {10,20,30,40,50,100,200,500,1000, 2000};
-        int[] genLimit = {500};
+        int[] genLimit = {MAX_GENS};
+        int[] secsLimit = {1, 5, 10, 15, 20, 30, 60};
         double[] fitnessLimit = {0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.0000001, 0.00000001};
         for(SelectionMethod s : SelectionMethod.values()) {
             System.out.println("Resultados con método " + s + " :");
+
             for (int i : genLimit) {
                     gen.removeAll(gen);
                     gen.addAll(initialGen);
-                    //System.out.println("Gen size: " + gen.size());
-                    //System.out.println("Best fitness of initia
-                // l gen: " + getBestIndividual(gen).getFitness());
                     MAX_GENS = i;
                     algorithm(s, ReproductionMethod.SINGLEPOINT);
 
@@ -172,16 +150,35 @@ public class MainGenerator {
                         sb.append(array[k] + ": " +  bestInd.getValAtIdx(k) + " ");
                     }
                     System.out.println(sb);
-                    System.out.println("N max de gens: " + i + "  Mejor fitness: " + getBestIndividual(gen).getFitness() + "\n");
+                    System.out.println("N max de gens: " + i + "  Mejor fitness: " + getBestIndividual(gen).getFitness());
             }
-            /*for(double d: fitnessLimit){
+            System.out.println();
+
+            int auxiMax = MAX_GENS;
+            for(double d: fitnessLimit){
+                MAX_GENS = 0;
                 gen.removeAll(gen);
                 gen.addAll(initialGen);
                 EPSILON = -1*d;
                 algorithm(s, ReproductionMethod.SINGLEPOINT);
                 System.out.println("Gens necesarias para alcanzar cota " + EPSILON + ": " + gensN);
-            }*/
+            }
+            System.out.println();
+            MAX_GENS = auxiMax;
+            for(int sec: secsLimit){
+                INITIAL_T = System.currentTimeMillis();
+                gen.removeAll(gen);
+                gen.addAll(initialGen);
+                MAX_TIME = sec*1000;
+                algorithm(s, ReproductionMethod.SINGLEPOINT);
+                System.out.println("Mejor fitness en " + sec + " segundos: " + getBestIndividual(gen).getFitness());
+            }
+            System.out.println();
+
+            System.out.println("\n##################\n");
+
         }
+
     }
 
     static Individual getBestIndividual(ArrayList<Individual> gen){

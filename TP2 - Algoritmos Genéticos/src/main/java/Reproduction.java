@@ -67,7 +67,7 @@ public class Reproduction {
         Individual newI2 = new Individual();
         for(int i = 0; i < IND_SIZE; i++){
             double p = r.nextDouble();
-            System.out.println("i: " + i + ", p: " + p);
+            //System.out.println("i: " + i + ", p: " + p);
             newI1.setValueAtIdx(i, p < 0.5? i1.getValAtIdx(i):i2.getValAtIdx(i));
             newI2.setValueAtIdx(i, p < 0.5? i2.getValAtIdx(i):i1.getValAtIdx(i));
         }

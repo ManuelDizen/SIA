@@ -4,12 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-<<<<<<< Updated upstream
-    <list default="true" id="b4263a58-8a4f-4256-8493-155c98366cbe" name="Changes" comment="" />
-=======
-    <list default="true" id="b4263a58-8a4f-4256-8493-155c98366cbe" name="Changes" comment="">
+    <list default="true" id="d3763714-19fe-4f5f-a1ae-a9ac1684b06e" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/MainGenerator.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/MainGenerator.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Mutation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Mutation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/Reproduction.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Reproduction.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/Selection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/Selection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/Individual.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Individual.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/MainGenerator$1.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/MainGenerator$1.class" afterDir="false" />
@@ -17,8 +17,8 @@
       <change beforePath="$PROJECT_DIR$/target/classes/Mutation.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Mutation.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/Reproduction.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Reproduction.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/Selection.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/Selection.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/SelectionMethod.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/SelectionMethod.class" afterDir="false" />
     </list>
->>>>>>> Stashed changes
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

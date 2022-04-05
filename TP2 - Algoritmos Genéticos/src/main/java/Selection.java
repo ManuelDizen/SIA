@@ -31,31 +31,28 @@ public class Selection {
         Random rand = new Random();
         double p = rand.nextDouble();
 
-        while(returnList.size() < dim){
-            
+        while(returnList.size() < dim) {
+
             i = 0;
-            while(i<values.size()-1 && p > values.get(i)){
+            while (i < values.size() - 1 && p > values.get(i)) {
                 i++;
             }
-            
-            if(!times.containsKey(gen.get(i)))
-                times.put(gen.get(i), 0);
-            
-             if(!returnList.contains(gen.get(i))){
-                    returnList.add(gen.get(i));
-                } else {
-                    times.put(gen.get(i), times.get(gen.get(i))+1);
 
-                    if(times.get(gen.get(i)) >= 20) {
-                        gen.remove(i);
-                        values = calcFreqs(gen, boltzmann);
-                    }
+            if (!times.containsKey(gen.get(i)))
+                times.put(gen.get(i), 0);
+
+            if (!returnList.contains(gen.get(i))) {
+                returnList.add(gen.get(i));
+            } else {
+                times.put(gen.get(i), times.get(gen.get(i)) + 1);
+
+                if (times.get(gen.get(i)) >= 20) {
+                    gen.remove(i);
+                    values = calcFreqs(gen, boltzmann);
                 }
             }
             p = rand.nextDouble();
-
         }
-
 
         return returnList;
     }
