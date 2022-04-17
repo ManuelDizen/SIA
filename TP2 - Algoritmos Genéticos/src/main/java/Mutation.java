@@ -1,8 +1,8 @@
 import java.util.Random;
 
 public class Mutation {
-    private final double MUTATION_P = 0.01;
-    private final double MAX_DISTURBANCE = 5;
+    private final double MUTATION_P = 0.05;
+    private final double MAX_DISTURBANCE = 10;
 
     public Individual mutate(Individual ind){
         Random r = new Random();

@@ -7,6 +7,6 @@
 ### Integrantes:
 Nombre | Legajo
 -------|--------
-De Simone, Franco | 61100
-Dizenhaus, Manuel | 61101
-Cornidez, Milagros | 61432
+[De Simone, Franco](https://github.com/desimonef) | 61100
+[Dizenhaus, Manuel](https://github.com/ManuelDizen) | 61101
+[Cornidez, Milagros](https://github.com/mcornidez) | 61432
