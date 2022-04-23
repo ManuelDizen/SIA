@@ -1,5 +1,6 @@
 import numpy
 
+
 class perceptron:
     def __init__(self, trainingData, expectedOutput, learnRate, activationFunc, errorFunc):
         self.w_min = None
@@ -16,16 +17,20 @@ class perceptron:
         inputSize = len(self.trainingData[0])
         w = numpy.zeros(inputSize)
         error = 1
-        error_min = inputN*2
+        # error_min = (inputN * 2)*1.0
+        self.error_min = (inputN * 2)*1.0
         while i < maxIterations and error > 0:
-            position = numpy.random.randint(0, inputN)
+            position = numpy.random.randint(0, inputN - 1)
             # TODO: ¿Producto interno en python? ¿Uso builtin de numpy?
-            h = numpy.inner(self.trainingData[position], w)
-            delta_w = self.learnRate*(self.expectedOutput[position] - self.activationFunc(h))*self.trainingData[position]
-            w = w + delta_w
+            h = numpy.dot(self.trainingData[position], w)
+            for pos in range(0, len(w)):
+                delta_w = self.learnRate * (self.expectedOutput[position] - self.activationFunc(h)) * self.trainingData[
+                    position][pos]
+                w[pos] += delta_w
             error = self.errorFunc(self.trainingData, self.expectedOutput, w, self.activationFunc)
-            if error < error_min:
+            if error < self.error_min:
                 self.error_min = error
                 self.w_min = w
             i = i + 1
-        print("Despues de ", i, " iteraciones, minimo error fue: ", error_min, " y minimo w fue ", self.w_min)
+        #print("Despues de ", i, " iteraciones, minimo error fue: ", error_min, " y minimo w fue ", self.w_min)
+        print(f'Iters: {i}, Min error: {self.error_min}, Min w: {self.w_min}')
