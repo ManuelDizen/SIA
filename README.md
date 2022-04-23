@@ -4,6 +4,9 @@
 * :link: TP2: [Algoritmos Genéticos](https://github.com/ManuelDizen/SIA/tree/main/TP2%20-%20Algoritmos%20Gen%C3%A9ticos)
 * :dna: TP3: [Perceptron Simple y Multicapa](https://github.com/ManuelDizen/SIA/tree/main/TP3%20-%20Perceptron%20Simple%20y%20Multicapa)
 
+## Ejercicios:
+* :chart_with_upwards_trend: Ejercicio 1: [Métodos de Optimización No Lineal]()
+
 ### Integrantes:
 Nombre | Legajo
 -------|--------
