@@ -6,6 +6,7 @@
 
 ## Ejercicios:
 * :chart_with_upwards_trend: Ejercicio 1: [Métodos de Optimización No Lineal]()
+* [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1D7Dj6ilBl-zU0oC2yJvVbWE_1JYxlzS5?authuser=1#scrollTo=gca0ZVia-U_V)
 
 ### Integrantes:
 Nombre | Legajo
