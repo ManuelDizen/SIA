@@ -2,7 +2,7 @@ import numpy
 
 
 class perceptron:
-    def __init__(self, trainingData, expectedOutput, learnRate, activationFunc, errorFunc):
+    def __init__(self, trainingData, expectedOutput, learnRate, activationFunc, errorFunc, isLinear=False, derivative=None):
         self.w_min = None
         self.error_min = None
         self.trainingData = trainingData
@@ -10,6 +10,9 @@ class perceptron:
         self.learnRate = learnRate
         self.activationFunc = activationFunc
         self.errorFunc = errorFunc
+        self.isLinear = isLinear
+        self.derivative = derivative # Necesario para perceptron NO lineal, que usa la misma formula de delta_w
+                                     # mulitplicada por g'(h)
 
     def algorithm(self, maxIterations):
         i = 0
@@ -23,14 +26,16 @@ class perceptron:
             position = numpy.random.randint(0, inputN - 1)
             # TODO: ¿Producto interno en python? ¿Uso builtin de numpy?
             h = numpy.dot(self.trainingData[position], w)
+            actualOut = self.activationFunc(h)
             for pos in range(0, len(w)):
-                delta_w = self.learnRate * (self.expectedOutput[position] - self.activationFunc(h)) * self.trainingData[
+                delta_w = self.learnRate * (self.expectedOutput[position] - actualOut) * self.trainingData[
                     position][pos]
+                if self.isLinear is not True:
+                    delta_w *= self.derivative(actualOut)
                 w[pos] += delta_w
             error = self.errorFunc(self.trainingData, self.expectedOutput, w, self.activationFunc)
             if error < self.error_min:
                 self.error_min = error
                 self.w_min = w
             i = i + 1
-        #print("Despues de ", i, " iteraciones, minimo error fue: ", error_min, " y minimo w fue ", self.w_min)
         print(f'Iters: {i}, Min error: {self.error_min}, Min w: {self.w_min}')

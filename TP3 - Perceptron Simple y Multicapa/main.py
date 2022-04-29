@@ -1,5 +1,6 @@
 import numpy
 import pandas as pd
+import matplotlib.pyplot as plt
 from src.perceptron import *
 from src.methods import *
 
@@ -9,6 +10,8 @@ print("Ejercicio 1: Perceptron siple con función de activación escalón con do
 
 trainDataAnd = numpy.array([[-1,1],[1,-1],[-1,-1],[1,1]])
 expectedOutputAnd = numpy.array([-1,-1,-1,1])
+
+
 
 print("\nFunción lógica \"XOR\"")
 
