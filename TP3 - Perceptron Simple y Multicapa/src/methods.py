@@ -15,10 +15,9 @@ def sigmoidLogisticActivationFunc(value):
     return 1 / (1 + numpy.exp(-2*betaParameter*value))
 
 def simpleErrorFunc(trainingData, expectedOutput, w, activationFunc):
-    i = 1
     limit = len(trainingData)
     error = 0
-    for i in range(0, limit):
-        actualOut = numpy.inner(trainingData[i], w)
+    for i in range(limit):
+        actualOut = numpy.dot(trainingData[i], w)
         error += ((expectedOutput[i] - activationFunc(actualOut)) ** 2)
     return error / 2
