@@ -11,6 +11,9 @@ def linearActivationFunc(value):
 def sigmoidTanhActivationFunc(value):
     return numpy.tanh(value * betaParameter)
 
+def sigmoidTanhActivationFuncDerivative(value):
+    return betaParameter * (1 - value * value)
+
 def sigmoidLogisticActivationFunc(value):
     return 1 / (1 + numpy.exp(-2*betaParameter*value))
 
