@@ -1,3 +1,4 @@
+import numpy
 import numpy as np
 
 def parseNumbers(path):
@@ -26,3 +27,31 @@ def parseNumbers(path):
         i += 1
     return np.array(numbers)
 
+def parse_training_data(path):
+    file = open(path, 'r')
+    l = file.readline()
+    inputData = []
+    while l:
+        singleInput = (l.strip('\n')).split('   ')[1:]
+        singleInput = list(map(lambda x: float(x), singleInput))
+        #print(singleInput)
+        inputData.append(singleInput)
+        l = file.readline()
+    file.close()
+    print(f'len = {len(inputData[0])}')
+    return inputData
+
+def parse_output_data(path):
+    file = open(path, 'r')
+    l = file.readline()
+    outputData = []
+    while l:
+        data = float(l.strip(' '))
+        outputData.append(data)
+        l = file.readline()
+    file.close()
+    return outputData
+
+def append_threshold(data):
+    data = list(map(lambda x: np.append(x, 1), data))
+    return data

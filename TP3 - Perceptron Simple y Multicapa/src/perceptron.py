@@ -52,6 +52,9 @@ class perceptron:
             #print(f'Len de w = {len(w)} ({w}) y Len de training = {len(self.trainingData[idx])} ({self.trainingData[idx]})')
             h_value = numpy.dot(self.trainingData[idx], w)
             activation = self.activationFunc(h_value)
+            #auxData = numpy.array(self.trainingData[idx])
+            #print(f'learnrate = {self.learnRate} - exp = {self.expectedOutput[idx]} - auxDAta = {auxData}')
+            #delta_w = self.learnRate * (self.expectedOutput[idx] - activation) * auxData
             delta_w = self.learnRate * (self.expectedOutput[idx] - activation) * self.trainingData[idx]
             if self.isLinear is not True:
                 delta_w *= self.derivative(activation)
