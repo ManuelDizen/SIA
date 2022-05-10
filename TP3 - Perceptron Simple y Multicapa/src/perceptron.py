@@ -72,3 +72,14 @@ class perceptron:
                 self.w_min = w
             self.min_errors[i] = self.error_min
             i = i+1
+
+            
+        def __str__(self):
+            if self.activationFunc == simpleActivationFunc:
+                return 'Perceptrón Escalón'
+            elif self.activationFunc == linearActivationFunc:
+                return 'Perceptrón Lineal'
+            elif self.activationFunc == sigmoidTanhActivationFunc:
+                return 'Perceptrón No Lineal (Tanh)'
+            elif self.activationFunc == sigmoidLogisticActivationFunc:
+                return 'Perceptrón No Lineal (Logistic)'
