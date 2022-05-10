@@ -75,7 +75,7 @@ for i in range(len(x_axis_values)):
     t = (aux[1] * 1.0 * x_axis_values[i] + aux[2]) / -aux[0]
     y_axis_values.append(t)
 ax = plt.subplot()
-col = numpy.where(expectedOutputAnd < 1,'r','b')
+col = numpy.where(expectedOutputXor < 1,'r','b')
 plt.scatter([row[0] for row in trainDataXor], [row[1] for row in trainDataXor], c=col, s=300)
 plt.title("Resultados de la función \"XOR\"")
 plt.xlabel("X")

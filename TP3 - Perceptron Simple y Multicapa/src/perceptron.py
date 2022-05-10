@@ -12,8 +12,10 @@ class perceptron:
         self.errorFunc = errorFunc
         self.isLinear = isLinear
         self.default_min_error = default_min_error
-        self.derivative = derivative # Necesario para perceptron NO lineal, que usa la misma formula de delta_w
-                                     # mulitplicada por g'(h)
+        self.errors = []
+        self.min_errors = []
+        self.derivative = derivative
+            
 
     def algorithm(self, maxIterations):
         i = 0
@@ -43,31 +45,41 @@ class perceptron:
         print(f'Iters: {i}, Min error: {self.error_min}, Min w: {self.w_min}')
 
     def algorithm2(self, maxIterations=30):
-        i = 0
-        w = numpy.zeros(len(self.trainingData[0]) - 1)
-        w = numpy.append(w, 1)
+       i = 0
+        w = self.w_min
+        if self.activationFunc == simpleActivationFunc:
+            w[len(self.trainingData[0])-1] = 1
         error = 1
+        self.errors = numpy.zeros(maxIterations)
+        self.min_errors = numpy.zeros(maxIterations)
         while error > self.default_min_error and i < maxIterations:
             idx = numpy.random.randint(0, len(self.trainingData) - 1)
-            #print(f'Len de w = {len(w)} ({w}) y Len de training = {len(self.trainingData[idx])} ({self.trainingData[idx]})')
+    
             h_value = numpy.dot(self.trainingData[idx], w)
+           
             activation = self.activationFunc(h_value)
-            #auxData = numpy.array(self.trainingData[idx])
-            #print(f'learnrate = {self.learnRate} - exp = {self.expectedOutput[idx]} - auxDAta = {auxData}')
-            #delta_w = self.learnRate * (self.expectedOutput[idx] - activation) * auxData
+            
             delta_w = self.learnRate * (self.expectedOutput[idx] - activation) * self.trainingData[idx]
+            
             if self.isLinear is not True:
                 delta_w *= self.derivative(activation)
-            w += delta_w
-            # for j in range(0, len(w)):
-            #     delta_w = self.learnRate * (self.expectedOutput[idx] - activation) * self.trainingData[idx][j]
-            #     if self.isLinear is not True:
-            #         delta_w *= self.derivative(activation)
-            #     w[j] += delta_w
+            
+            w += delta_w           
             error = self.errorFunc(self.trainingData, self.expectedOutput, w, self.activationFunc)
+            self.errors[i] = error
             if error < self.error_min:
-                print(f'(Ya estoy cambiando) Error = {error}, self.error_min = {self.error_min}')
                 self.error_min = error
                 self.w_min = w
+            self.min_errors[i] = self.error_min
             i = i+1
-        print(f'w = {w} error = {self.error_min}\n')
+
+            
+        def __str__(self):
+            if self.activationFunc == simpleActivationFunc:
+                return 'Perceptrón Escalón'
+            elif self.activationFunc == linearActivationFunc:
+                return 'Perceptrón Lineal'
+            elif self.activationFunc == sigmoidTanhActivationFunc:
+                return 'Perceptrón No Lineal (Tanh)'
+            elif self.activationFunc == sigmoidLogisticActivationFunc:
+                return 'Perceptrón No Lineal (Logistic)'
