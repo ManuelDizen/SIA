@@ -1,5 +1,6 @@
-import numpy
 import numpy as np
+from matplotlib import pyplot as plt
+
 
 def parseNumbers(path):
     file = open(path, "r")
@@ -27,21 +28,20 @@ def parseNumbers(path):
         i += 1
     return np.array(numbers)
 
-def parse_training_data(path):
+def parseTrainingData(path):
     file = open(path, 'r')
     l = file.readline()
     inputData = []
     while l:
         singleInput = (l.strip('\n')).split('   ')[1:]
         singleInput = list(map(lambda x: float(x), singleInput))
-        #print(singleInput)
         inputData.append(singleInput)
         l = file.readline()
     file.close()
     print(f'len = {len(inputData[0])}')
     return inputData
 
-def parse_output_data(path):
+def parseOutputData(path):
     file = open(path, 'r')
     l = file.readline()
     outputData = []
@@ -52,6 +52,21 @@ def parse_output_data(path):
     file.close()
     return outputData
 
-def append_threshold(data):
+def appendThreshold(data):
     data = list(map(lambda x: np.append(x, 1), data))
     return data
+
+def plotError(errors):
+    x = np.array(range(len(errors)))
+
+    fig, ax = plt.subplots(figsize=(5, 3), layout="constrained")
+
+    ax.set_xlabel("Iteración")
+    ax.set_ylabel("Error")
+    ax.locator_params("y")
+    ax.locator_params("x")
+    ax.plot(x, errors, label="Error", color="r")
+    ax.set_title("Error por cantidad de iteraciones")
+    ax.legend()
+    plt.show()
+

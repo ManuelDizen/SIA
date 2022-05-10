@@ -10,8 +10,8 @@ class MultilayerPerceptron:
 
 
     def algorithm(self, trainData, expectedOutput, maxIters):
-        i = 0
-        while i <= maxIters:
+        errors = []
+        for i in range(maxIters):
             for j in range(len(trainData)):
                 # Propago la entrada
                 activations = self.activate(trainData[j])
@@ -24,13 +24,15 @@ class MultilayerPerceptron:
                 #Retropropago delta
                 for k in range(len(self.layers)):
                     self.layers[k].delta(activations[k], self.learnRate)
+            print(f'Iteration {i}:')
+            errors.append(self.error(trainData, expectedOutput))
+        return errors
 
-            i = i + 1
-
-    def activate(self, input):
-        activations = [input]
+    def activate(self, inputs):
+        activations = [inputs]
         for i in range(len(self.layers)):
-            activations.append(self.layers[i].activate(activations[-1], self.function))
+            aux = self.layers[i].activate(activations[-1], self.function)
+            activations.append(aux)
         return activations
 
     def error(self, trainData, expectedOutput):
@@ -38,6 +40,8 @@ class MultilayerPerceptron:
         error = 0
         for pos in range(trainData.shape[0]):
             estimation = self.activate(trainData[pos])[-1]
-            error += (expectedOutput[pos] - estimation) * (expectedOutput[pos] - estimation)
+            auxerror = (expectedOutput[pos] - estimation) * (expectedOutput[pos] - estimation)
+            error += auxerror
             print(
-                f'h = {estimation}, expectedOut = {expectedOutput[pos]}, error = {np.sum(error) / trainData.shape[0]}')
+                f'h = {estimation}, expectedOut = {expectedOutput[pos]}, error = {auxerror}')
+        return np.sum(error)/trainData.shape[0]
