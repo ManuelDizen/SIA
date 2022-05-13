@@ -28,11 +28,11 @@ if str == "point1":
     #  logistic_perceptron = perceptron(trainData, outputData, 0.01, sigmoidLogisticActivationFunc, simpleErrorFunc, False, sigmoidLogisticActivationFuncDerivative)
     linear_perceptron.algorithm2(1000)
     tanh_perceptron.algorithm2(1000)
-    logistic_perceptron.algorithm2(1000)
+    #  logistic_perceptron.algorithm2(1000)
     print(f'Linear: min w = {linear_perceptron.w_min} and min error = {linear_perceptron.error_min}')
     print(f'Tanh: min w = {tanh_perceptron.w_min} and min error = {tanh_perceptron.error_min}')
-    print(f'Logistic: min w = {logistic_perceptron.w_min} and min error = {logistic_perceptron.error_min}')
-    perceptrons = [linear_perceptron, tanh_perceptron, logistic_perceptron]
+    #  print(f'Logistic: min w = {logistic_perceptron.w_min} and min error = {logistic_perceptron.error_min}')
+    perceptrons = [linear_perceptron, tanh_perceptron]
     for p in perceptrons:
         x_axis_values = range(1000)
         y_axis_values = p.errors
