@@ -2,6 +2,16 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 
+def normalize(output):
+    outData = numpy.zeros(len(output))
+    maxVal = np.max(output)
+    minVal = np.min(output)
+    for i in range(len(output)):
+        current = (2*(output[i] - minVal)/(maxVal - minVal))-1
+        outData[i] = current
+
+    return outData
+
 def parseNumbers(path):
     file = open(path, "r")
     lines = file.read()
