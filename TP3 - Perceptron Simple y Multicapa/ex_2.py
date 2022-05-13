@@ -8,7 +8,8 @@ import matplotlib.pyplot as plt
 
 trainData = parse_training_data('TP3-ej2-Conjunto-entrenamiento.txt')
 
-outputData = parse_output_data('TP3-ej2-Salida-deseada.txt')
+output = parseOutputData('TP3-ej2-Salida-deseada.txt')
+outputData = normalize(output)
 trainData = append_threshold(trainData)
 
 #outputData = append_threshold(outputData)
@@ -19,12 +20,12 @@ trainData = append_threshold(trainData)
 
 
 
-str = "point2"
+str = "point1"
 
 if str == "point1":
-    linear_perceptron = perceptron(trainData, outputData, 0.01, linearActivationFunc, simpleErrorFunc, True)
+    linear_perceptron = perceptron(trainData, output, 0.01, linearActivationFunc, simpleErrorFunc, True)
     tanh_perceptron = perceptron(trainData, outputData, 0.01, sigmoidTanhActivationFunc, simpleErrorFunc, False, sigmoidTanhActivationFuncDerivative)
-    logistic_perceptron = perceptron(trainData, outputData, 0.01, sigmoidLogisticActivationFunc, simpleErrorFunc, False, sigmoidLogisticActivationFuncDerivative)
+    #  logistic_perceptron = perceptron(trainData, outputData, 0.01, sigmoidLogisticActivationFunc, simpleErrorFunc, False, sigmoidLogisticActivationFuncDerivative)
     linear_perceptron.algorithm2(1000)
     tanh_perceptron.algorithm2(1000)
     logistic_perceptron.algorithm2(1000)
