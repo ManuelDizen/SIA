@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-EPSILON_NOISE = 0.01
+EPSILON_NOISE = 0
 N_LETTERS = 4
 
 alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
@@ -94,6 +94,20 @@ def pickRandomLetterFromPatterns(letters):
     print("\n" + f'Letra seleccionada: {selected}')
     return selected
 
+def printLetter(letter):
+    arr = np.array(letter)
+    test = np.array_split(letter, 5)
+    #print(test)
+    aux = len(test)
+    for line in range(0, aux):
+        str = ''
+        for i in range(0, len(test[0])):
+            if test[line][i] == 1:
+                str = str + '*'
+            else:
+                str = str + ' '
+        print(str)
+
 def hopfield(name):
     letters = pickLetters()
     # Aca me cree la función pickLetters para que sea random, pero es cierto
@@ -127,13 +141,20 @@ def hopfield(name):
             actualState = np.zeros(len(prevState))
         #print(actualState)
     actualState = actualState.astype(int)
-    print(f'ActualState: {actualState}')
-    print(f'OriginalLetter: {originalLetter}')
+    #print(f'ActualState: {actualState}')
+    #print(f'OriginalLetter: {originalLetter}')
+
+    print('Resultado de Hopfield: ')
+    printLetter(actualState)
+    print('Resultado de letra original: ')
+    printLetter(originalLetter)
 
     if np.array_equal(originalLetter,actualState):
         print('Se devolvió el patrón correcto')
     else:
         print('Se devolvió el patrón incorrecto')
+
+
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     hopfield('PyCharm')
