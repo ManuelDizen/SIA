@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 
-EPSILON_NOISE = 0
+EPSILON_NOISE = 0.1
 N_LETTERS = 4
 
 alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
@@ -48,7 +48,7 @@ def pickLetters():
         #    p += 1
         while alphabet[p] in lettersReturn.tolist():
             p = p+1
-            if p == len(lettersReturn):
+            if p == len(alphabet)-1:
                 p = 0
         lettersReturn[i] = alphabet[p]
         print(f'Letra pickeada: {alphabet_chars[p]}, ({lettersReturn[i]})')
@@ -131,8 +131,8 @@ def hopfield(name):
             for j in range(0, len(inputValue)):
                 if i != j:
                     sum += weights[i][j]*prevState[j]
-            aux = int(np.sign(sum))
-            actualState[i] = aux
+            h_i = int(np.sign(sum)) if sum != 0 else 0
+            actualState[i] = h_i
         if np.array_equal(prevState,actualState):
             #print(f'Patrón matcheado: {actualState}')
             break
