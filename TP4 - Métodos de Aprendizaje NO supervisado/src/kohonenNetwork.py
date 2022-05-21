@@ -1,31 +1,40 @@
 import numpy as np
 from numpy import random
 import math
-from src.neuron import neuron
+from src.neuron import *
+
 
 class kohonenNetwork:
-    def __init__(self, k, r_0, learnRate_0, inputs):
+
+    def __init__(self, k: int, r_0: int, learnRateConstant: False, learnRate_0: float, inputs):
         self.k = k
         self.r_0 = r_0
-        self.learnRate_0 = learnRate_0
+        self.learnRateConstant = learnRateConstant
+        if not learnRateConstant:
+            self.learnRate_0 = learnRate_0
         self.grid = [[None for _ in range(k)] for _ in range(k)]
-        for i in range(k):
-            for j in range(k):
+        #rows = []
+        #for j in range(0,k):
+        #    row = [neuron(inputs[random.randint(0, len(inputs))]) for i in range(0, k)]
+        #    rows.append(row)
+        #self.grid = rows
+        for i in range(0, k):
+            for j in range(0, k):
                 idx = random.randint(0, len(inputs))
                 self.grid[i][j] = neuron(inputs[idx])
         self.iterations = 500 * len(inputs[0])
 
-    def train(self, inputs):
+    def train(self, inputs, labels):
         k = 0
         r = self.r_0
         n = self.learnRate_0
         while k < self.iterations:
             idx = random.randint(0, len(inputs))
-            x, y = self.findBestCandidate(inputs[idx])
+            x, y = self.findBestCandidate(inputs[idx], labels[idx])
             self.updateNeighbours(x, y, self.grid, r, n, inputs[idx])
-            k, r, n = updateParameters(k, self.r_0, self.learnRate_0)
+            k, r, n = self.updateParameters(k)
 
-    def findBestCandidate(self, candidate):
+    def findBestCandidate(self, candidate, name):
         distance = np.Infinity
         bestX = -1
         bestY = -1
@@ -35,6 +44,7 @@ class kohonenNetwork:
                     distance = self.grid[x][y].distanceTo(candidate)
                     bestX = x
                     bestY = y
+        self.grid[bestX][bestY].addEntry(name)
         return bestX, bestY
 
     def updateNeighbours(self, x, y, grid, r, n, input):
@@ -42,9 +52,14 @@ class kohonenNetwork:
             for j in range(y - r, y + r + 1):
                 # need to check for borders
                 if 0 <= i < self.k and 0 <= j < self.k and math.hypot(x - i, y - j) <= r:
-                    grid[i][j].weights += n*(input - grid[i][j].weights)
+                    grid[i][j].weights += n * (input - grid[i][j].weights)
         self.grid = grid
 
-    def updateNeighbours(self, iters, r_0, learnRate_0):
+    def updateParameters(self, iters):
         iters += 1
+        learnRate = self.learnRate_0
+        if not self.learnRateConstant:
+            learnRate = (0.7 - self.learnRate_0) / self.iterations * iters + self.learnRate_0
+        r = int((1 - self.r_0) / self.iterations * iters) + self.r_0
+        return iters, r, learnRate
         # update r_0 and n_0
