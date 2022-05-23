@@ -7,7 +7,7 @@
 
 ## Ejercicios:
 * :chart_with_upwards_trend: Ejercicio 1: [Métodos de Optimización No Lineal](https://github.com/ManuelDizen/SIA/blob/main/Ej_Obligatorio%201/Ej1-Gradientes_Conjugados.ipynb) - [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1D7Dj6ilBl-zU0oC2yJvVbWE_1JYxlzS5?authuser=1#scrollTo=gca0ZVia-U_V)
-* 📊 Ejercicio 2: [Análisis de Componentes Principales](https://github.com/ManuelDizen/SIA/blob/main/Ej_Obligatorio%201/Ej1-Gradientes_Conjugados.ipynb) - [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1qF4tqK0DkcF9mfsf5yWk8dGKpn75hsXn?usp=sharing)
+* 📊 Ejercicio 2: [Análisis de Componentes Principales](https://github.com/ManuelDizen/SIA/blob/main/Ej_Obligatorio%202/Ej_2_Componentes_Principales.ipynb) - [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1qF4tqK0DkcF9mfsf5yWk8dGKpn75hsXn?usp=sharing)
 
 ### Integrantes:
 Nombre | Legajo
