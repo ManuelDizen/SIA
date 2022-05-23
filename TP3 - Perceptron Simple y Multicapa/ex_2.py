@@ -10,9 +10,9 @@ trainData = parse_training_data('TP3-ej2-Conjunto-entrenamiento.txt')
 
 output = parseOutputData('TP3-ej2-Salida-deseada.txt')
 outputData = normalize(output)
-trainData = append_threshold(trainData)
+trainData = appendThreshold(trainData)
 
-#outputData = append_threshold(outputData)
+#outputData = appendThreshold(outputData)
 
 #print(f'Train = {trainData}\noutput = {outputData}')
 
