@@ -135,13 +135,13 @@ def accuracy(trainData, expectedOutput):
     FP = 0
     FN = 0
     for i in range(trainData.shape[0]):
-        if expectedOutput[i] == -1 and trainData[i] < -0.09:
+        if expectedOutput[i] == -1 and trainData[i] < -0.99:
             TP += 1
-        elif expectedOutput[i] == 1 and trainData[i] > 0.09:
+        elif expectedOutput[i] == 1 and trainData[i] > 0.99:
             TN += 1
-        elif expectedOutput[i] == -1 and trainData[i] > -0.09:
+        elif expectedOutput[i] == -1 and trainData[i] > -0.99:
             FN += 1
-        elif expectedOutput[i] == 1 and trainData[i] < 0.09:
+        elif expectedOutput[i] == 1 and trainData[i] < 0.99:
             FP += 1
 
     return (TP + TN) / (TP + TN + FN + FP)
