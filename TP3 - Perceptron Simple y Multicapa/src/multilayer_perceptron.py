@@ -1,6 +1,5 @@
 import numpy as np
 
-
 class MultilayerPerceptron:
     def __init__(self, layers, function, derivative, learnRate):
         self.layers = layers
@@ -9,8 +8,11 @@ class MultilayerPerceptron:
         self.learnRate = learnRate
 
 
-    def algorithm(self, trainData, expectedOutput, maxIters):
+    def algorithm(self, trainData, expectedOutput, testData, expectedTest, maxIters):
         errors = []
+        errorsTest = []
+        accuraciesTrain = []
+        accuraciesTest = []
         for i in range(maxIters):
             for j in range(len(trainData)):
                 # Propago la entrada
@@ -24,9 +26,13 @@ class MultilayerPerceptron:
                 #Retropropago delta
                 for k in range(len(self.layers)):
                     self.layers[k].delta(activations[k], self.learnRate)
-            print(f'Iteration {i}:')
-            errors.append(self.error(trainData, expectedOutput))
-        return errors
+            auxerror, correct = self.error(trainData, expectedOutput)
+            errors.append(auxerror)
+            accuraciesTrain.append(correct/len(trainData))
+            auxerror, correct = self.error(testData, expectedTest)
+            errorsTest.append(auxerror)
+            accuraciesTest.append(correct/len(testData))
+        return errors, accuraciesTrain, accuraciesTest, errorsTest
 
     def activate(self, inputs):
         activations = [inputs]
@@ -38,10 +44,19 @@ class MultilayerPerceptron:
     def error(self, trainData, expectedOutput):
         # Calculo el error
         error = 0
+        correct = 0
         for pos in range(trainData.shape[0]):
             estimation = self.activate(trainData[pos])[-1]
             auxerror = (expectedOutput[pos] - estimation) * (expectedOutput[pos] - estimation)
             error += auxerror
-            print(
-                f'h = {estimation}, expectedOut = {expectedOutput[pos]}, error = {auxerror}')
-        return np.sum(error)/trainData.shape[0]
+            if auxerror < 0.01:
+                correct += 1
+        return np.sum(error)/trainData.shape[0], correct
+
+    def estimations(self, trainData):
+        est = []
+        for pos in range(trainData.shape[0]):
+            est.append(self.activate(trainData[pos])[-1])
+        return np.array(est)
+
+

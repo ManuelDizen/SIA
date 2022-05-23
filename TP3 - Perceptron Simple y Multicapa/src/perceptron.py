@@ -1,5 +1,7 @@
 import numpy
 
+from src.methods import *
+
 
 class perceptron:
     def __init__(self, trainingData, expectedOutput, learnRate, activationFunc, errorFunc, isLinear=False, derivative=None, default_min_error=0.01):
@@ -45,7 +47,7 @@ class perceptron:
         print(f'Iters: {i}, Min error: {self.error_min}, Min w: {self.w_min}')
 
     def algorithm2(self, maxIterations=30):
-       i = 0
+        i = 0
         w = self.w_min
         if self.activationFunc == simpleActivationFunc:
             w[len(self.trainingData[0])-1] = 1
