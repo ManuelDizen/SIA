@@ -5,131 +5,149 @@ from src.perceptron import *
 from src.methods import *
 import matplotlib.pyplot as plt
 
-
-trainData = parse_training_data('TP3-ej2-Conjunto-entrenamiento.txt')
+trainData = parseTrainingData('TP3-ej2-Conjunto-entrenamiento.txt')
 
 output = parseOutputData('TP3-ej2-Salida-deseada.txt')
-outputData = normalize(output)
+
+outputNormalized = normalize(output)
+
 trainData = appendThreshold(trainData)
 
-#outputData = appendThreshold(outputData)
-
-#print(f'Train = {trainData}\noutput = {outputData}')
-
-
-
+# print(trainData)
+# print(output)
+# print(outputNormalized)
+# print(outputNormalized2
 
 
-str = "point1"
+linear_perceptron = perceptron(trainData, output, 0.01, linearActivationFunc, simpleErrorFunc, True)
+tanh_perceptron = perceptron(trainData, outputNormalized, 0.01, sigmoidTanhActivationFunc, simpleErrorFunc, False,
+                             sigmoidTanhActivationFuncDerivative, denormalizeErrorFunc)
+print("LINEAR PERCEPTRON:")
+linear_perceptron.algorithm(10000)
+print(f'w min: {linear_perceptron.w_min}, error min: {linear_perceptron.error_min}')
+print("NON LINEAR PERCEPTRON:")
+tanh_perceptron.algorithm(10000)
+print(
+    f'w min: {tanh_perceptron.w_min}, error min: {tanh_perceptron.error_min}, denormalized error min: {tanh_perceptron.min_errors_denormalize[-1]}')
 
-if str == "point1":
-    linear_perceptron = perceptron(trainData, output, 0.01, linearActivationFunc, simpleErrorFunc, True)
-    tanh_perceptron = perceptron(trainData, outputData, 0.01, sigmoidTanhActivationFunc, simpleErrorFunc, False, sigmoidTanhActivationFuncDerivative)
-    #  logistic_perceptron = perceptron(trainData, outputData, 0.01, sigmoidLogisticActivationFunc, simpleErrorFunc, False, sigmoidLogisticActivationFuncDerivative)
-    linear_perceptron.algorithm2(1000)
-    tanh_perceptron.algorithm2(1000)
-    #  logistic_perceptron.algorithm2(1000)
-    print(f'Linear: min w = {linear_perceptron.w_min} and min error = {linear_perceptron.error_min}')
-    print(f'Tanh: min w = {tanh_perceptron.w_min} and min error = {tanh_perceptron.error_min}')
-    #  print(f'Logistic: min w = {logistic_perceptron.w_min} and min error = {logistic_perceptron.error_min}')
-    perceptrons = [linear_perceptron, tanh_perceptron]
-    for p in perceptrons:
-        x_axis_values = range(1000)
-        y_axis_values = p.errors
-        plt.plot(x_axis_values, y_axis_values, label=p)
-    plt.title(f'Error para cada iteración')
-    plt.xlabel("Iteraciones")
-    plt.ylabel("Error")
-    plt.legend()
-    plt.show()
-    for p in perceptrons:
-        learnrates = [0.1, 0.05, 0.01, 0.001]
-        for i in learnrates:
-            p.error_min = numpy.inf
-            p.w_min = numpy.zeros(len(trainData[0]))
-            p.learnRate = i
-            p.algorithm2(1000)
-            x_axis_values = range(1000)
-            y_axis_values = p.min_errors
-            plt.plot(x_axis_values, y_axis_values, label=f'n = {i}')
-        plt.title(f'Error mínimo \nen {p}')
-        plt.xlabel("Iteraciones")
-        plt.ylabel("Error mínimo")
-        plt.legend()
-        plt.show()
+x_axis_values = range(10000)
+y_axis_values = linear_perceptron.errors
+plt.plot(x_axis_values, y_axis_values, label=f'{linear_perceptron}')
+x_axis_values = range(10000)
+y_axis_values = tanh_perceptron.min_errors_denormalize
+plt.ylim(0, 50000)
+plt.plot(x_axis_values, y_axis_values, label=f'{tanh_perceptron} denormalized')
+plt.title(f'Error para cada iteración')
+plt.xlabel("Iteraciones")
+plt.ylabel("Error")
+plt.legend()
+plt.show()
 
-        for i in learnrates:
-            p.error_min = numpy.inf
-            p.w_min = numpy.zeros(len(trainData[0]))
-            p.learnRate = i
-            p.algorithm2(1000)
-            x_axis_values = range(1000)
-            y_axis_values = p.errors
-            plt.plot(x_axis_values, y_axis_values, label=f'n = {i}')
-        plt.title(f'Error \nen {p}')
-        plt.xlabel("Iteraciones")
-        plt.ylabel("Error")
-        plt.legend()
-        plt.show()
+learnrates = [1, 0.5, 0.1, 0.01, 0.001, 0.0001]
+for i in learnrates:
+    tanh_perceptron.error_min = numpy.inf
+    tanh_perceptron.w_min = numpy.zeros(len(trainData[0]))
+    tanh_perceptron.learnRate = i
+    tanh_perceptron.algorithm(10000)
+    x_axis_values = range(10000)
+    y_axis_values = tanh_perceptron.min_errors_denormalize
+    plt.plot(x_axis_values, y_axis_values, label=f'n = {i}')
+plt.title(f'Error en {tanh_perceptron}')
+plt.xlabel("Iteraciones")
+plt.ylabel("Error mínimo")
+plt.legend()
+plt.show()
 
+ks = [20, 40, 60, 80, 100, 120, 140, 160, 180]
+perceptron = perceptron(trainData, outputNormalized, 0.01, sigmoidTanhActivationFunc, simpleErrorFunc,
+                        False, sigmoidTanhActivationFuncDerivative, denormalizeErrorFunc)
+trainAcc = numpy.zeros(10)
+testAcc = numpy.zeros(10)
+for k in ks:
+    trainSet = trainData[:int(k)]
+    testSet = trainData[int(k):]
+    trainOutput = output[:int(k)]
+    trainOutputNormalized = normalize(trainOutput)
+    testOutput = output[int(k):]
+    testOutputNormalized = normalize(testOutput)
 
-elif str == "point2":
-    perceptron = perceptron(trainData, outputData, 0.001, sigmoidTanhActivationFunc, simpleErrorFunc, False,
-                            sigmoidTanhActivationFuncDerivative)
-    k = 100
-    trainSet = trainData[0:int(k)]
-    outputSet = outputData[0:int(k)]
-    testSet = trainData[int(k):len(trainData)]
-    expectedOutput = outputData[int(k):len(trainData)]
     perceptron.trainingData = trainSet
-    perceptron.expectedOutput = outputSet
-    perceptron.w_min = numpy.zeros(len(trainSet[0]))
+    perceptron.expectedOutput = trainOutputNormalized
     perceptron.error_min = numpy.inf
-    perceptron.algorithm2(100)
-    err = simpleErrorFunc(testSet, expectedOutput, perceptron.w_min, sigmoidTanhActivationFunc) / len(testSet)
-    print(f'k = {k}, error = {err}')
-    accuracy = numpy.zeros(100)
-    accuracyTraining = numpy.zeros(100)
-    for i in range(100):
-        perceptron.algorithm2(100)
-        current = simpleErrorFunc(testSet, expectedOutput, perceptron.w_min, sigmoidTanhActivationFunc) / len(testSet)
-        accuracy[i] = 1 / current
-        current = simpleErrorFunc(trainSet, outputSet, perceptron.w_min, sigmoidTanhActivationFunc) / len(trainSet)
-        accuracyTraining[i] = 1 / current
-    x_axis_values = range(100)
+    perceptron.w_min = numpy.zeros(len(trainData[0]))
+    perceptron.algorithm(10000)
+    index = k / 20
+    trainAcc[int(index)] = denormalizeErrorFunc(trainSet, trainOutputNormalized, perceptron.w_min,
+                                                sigmoidTanhActivationFunc) / len(trainSet)
+
+    testAcc[int(index)] = denormalizeErrorFunc(testSet, testOutputNormalized, perceptron.w_min,
+                                               sigmoidTanhActivationFunc) / len(testSet)
+    print(f'{trainAcc[int(index)]}, {testAcc[int(index)]}')
+
+x = numpy.zeros(9)
+for i in range(9):
+    x[i] = (i + 1) * 10
+
+x_axis_values = x
+y_axis_values = trainAcc[1:]
+plt.plot(x_axis_values, y_axis_values, label=f'Entrenamiento')
+y_axis_values = testAcc[1:]
+plt.plot(x_axis_values, y_axis_values, label=f'Test')
+plt.title(f'Accuracy para diferentes tamaños del conjunto de entrenamiento')
+plt.xlabel("Porcentaje del total")
+plt.ylabel("Accuracy")
+plt.legend()
+plt.show()
+
+ks = [20, 100, 180]
+perceptron.learnRate = 0.001
+for k in ks:
+    trainSet = trainData[:int(k)]
+    testSet = trainData[int(k):]
+    trainOutput = output[:int(k)]
+    trainOutputNormalized = normalize(trainOutput)
+    testOutput = output[int(k):]
+    perceptron.trainingData = trainSet
+    perceptron.expectedOutput = trainOutputNormalized
+    perceptron.error_min = numpy.inf
+    perceptron.w_min = numpy.zeros(len(trainData[0]))
+    accuracy = numpy.zeros(500)
+    accuracyTraining = numpy.zeros(500)
+    for i in range(500):
+        perceptron.algorithm(100)
+        print(
+            f'w min: {perceptron.w_min}, error min: {perceptron.error_min}, denormalized error min: {perceptron.min_errors_denormalize[-1]}')
+        accuracyTraining[i] = calcAccuracy(trainSet, trainOutput, perceptron.w_min, sigmoidTanhActivationFunc)
+        accuracy[i] = calcAccuracy(testSet, testOutput, perceptron.w_min, sigmoidTanhActivationFunc)
+    x_axis_values = range(500)
     y_axis_values = accuracyTraining
     plt.plot(x_axis_values, y_axis_values, label="Entrenamiento")
     y_axis_values = accuracy
     plt.plot(x_axis_values, y_axis_values, label="Test")
-    plt.title(f'Precisión vs época para k = {k}')
+    porc = int(k / 2)
+    plt.title(f'Accuracy vs época para {porc}%')
     plt.xlabel("Época")
-    plt.ylabel("Precisión")
+    plt.ylabel("Accuracy")
     plt.legend()
     plt.show()
-    plt.plot(x_axis_values, y_axis_values)
-    plt.title(f'Precisión vs época para k = {k}')
-    plt.xlabel("Época")
-    plt.ylabel("Precisión")
-    plt.show()
 
-    limInf = 0
-    limSup = len(trainData) / 10
-    accuracy = numpy.zeros(10)
-    i = 0
-    while limSup <= len(trainData):
-        testSet = trainData[int(limInf):int(limSup)]
-        expectedOutput = outputData[int(limInf):int(limSup)]
-        trainSet = trainData[0:int(limInf)] + trainData[int(limSup):int(len(trainData))]
-        outputSet = outputData[0:int(limInf)] + outputData[int(limSup):int(len(trainData))]
-        perceptron.trainingData = trainSet
-        perceptron.expectedOutput = outputSet
-        perceptron.w_min = numpy.zeros(len(trainSet[0]))
-        perceptron.error_min = numpy.inf
-        perceptron.algorithm2(1000)
-        current = simpleErrorFunc(testSet, expectedOutput, perceptron.w_min, sigmoidTanhActivationFunc) / len(testSet)
-        accuracy[i] = 1 / current
-        i += 1
-        limSup += len(trainData) / 10
-        limInf += len(trainData) / 10
+limInf = 0
+limSup = int(len(trainData) / 5)
+accuracy = numpy.zeros(10)
+i = 0
+while limSup <= len(trainData):
+    print(f'limInf = {limInf}, limSup = {limSup}')
+    testSet = trainData[limInf:limSup]
+    trainSet = trainData[:limInf] + trainData[limSup:]
+    testOutput = output[limInf:limSup]
+    trainOutput = output[:limInf] + output[limSup:]
+    trainOutputNormalized = normalize(trainOutput)
+    perceptron.trainingData = trainSet
+    perceptron.expectedOutput = trainOutputNormalized
+    perceptron.error_min = numpy.inf
+    perceptron.w_min = numpy.zeros(len(trainData[0]))
+    perceptron.algorithm(5000)
+    accuracy = calcAccuracy(testSet, testOutput, perceptron.w_min, sigmoidTanhActivationFunc)
     print(accuracy)
-
+    limSup += int(len(trainData) / 5)
+    limInf += int(len(trainData) / 5)
