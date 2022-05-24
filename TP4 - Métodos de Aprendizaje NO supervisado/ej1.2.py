@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from plotting import *
 
 df = pd.read_csv("europe.csv")
-
+desired = ["Area", "GDP", "Inflation", "Life.expect", "Military", "Pop.growth", "Unemployment"]
 labels = df[df.columns[0]].to_numpy()
 inputs = df.loc[:, ["Area", "GDP", "Inflation", "Life.expect", "Military", "Pop.growth", "Unemployment"]].values
 inputs = StandardScaler().fit_transform(inputs)
@@ -17,7 +17,7 @@ print(f'w inicial = {w}')
 nOfIterations = 500
 
 outputWs = np.empty(shape=(nOfIterations, len(inputs[0])))
-print(f'outputWs inicial = {outputWs}')
+#print(f'outputWs inicial = {outputWs}')
 for iter in range(0, nOfIterations):
     for i in range(0, len(inputs)):
         s = 0
@@ -29,3 +29,5 @@ for iter in range(0, nOfIterations):
     outputWs[iter] = w
 
 print(f'{outputWs[-1]}\nshape={outputWs.shape}')
+#for i in range(0, len(inputs[0])):
+#    print(f'Promedio de variable X_{i} ({desired[i]}) = {outputWs[:,i].mean()}\n')
