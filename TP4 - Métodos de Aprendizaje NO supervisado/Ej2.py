@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import seaborn as sns
 
 EPSILON_NOISE = 0.1
 N_LETTERS = 4
@@ -36,9 +37,6 @@ alphabet_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm
                   'p','q','r','s','t','u','v','w','x','y','z']
 
 #TODO: Revisar la K
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 def pickLetters():
     lettersReturn = np.empty((N_LETTERS,25), dtype=int)
@@ -133,6 +131,10 @@ def hopfield(name):
                     sum += weights[i][j]*prevState[j]
             h_i = int(np.sign(sum)) if sum != 0 else 0
             actualState[i] = h_i
+        data = [actualState[0:5], actualState[5:10], actualState[10:15], actualState[15:20], actualState[20:25]]
+        plt.figure(figsize=(10, 10))
+        heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens")
+        plt.show()
         if np.array_equal(prevState,actualState):
             #print(f'Patrón matcheado: {actualState}')
             break
@@ -141,8 +143,8 @@ def hopfield(name):
             actualState = np.zeros(len(prevState))
         #print(actualState)
     actualState = actualState.astype(int)
-    #print(f'ActualState: {actualState}')
-    #print(f'OriginalLetter: {originalLetter}')
+    print(f'ActualState: {actualState}')
+    print(f'OriginalLetter: {originalLetter}')
 
     print('Resultado de Hopfield: ')
     printLetter(actualState)
