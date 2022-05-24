@@ -31,6 +31,12 @@ for i in range(0,10):
             #print(f'New w= {w}, Delta_w={learnRate*s*(inputs[i] - s*w)}')
         outputWs[iter] = w
 
-    print(f'{outputWs[-1]}')
+    #print(f'{outputWs[-1]}')
+    str = "Autovector = "
+    for i in range(0, len(outputWs[-1])):
+        if outputWs[-1][i] >= 0:
+            str = str + " + "
+        str = str + f'{outputWs[-1][i]} X{i+1} '
+    print(str)
     #for i in range(0, len(inputs[0])):
     #    print(f'Promedio de variable X_{i} ({desired[i]}) = {outputWs[:,i].mean()}\n')
