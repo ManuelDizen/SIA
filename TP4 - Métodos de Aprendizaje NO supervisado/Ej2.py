@@ -3,7 +3,7 @@ import numpy as np
 import random
 import seaborn as sns
 
-EPSILON_NOISE = 0.1
+EPSILON_NOISE = 0.5
 N_LETTERS = 4
 
 alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
@@ -15,28 +15,29 @@ alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
             [1,1,1,1,1, 1,-1,-1,-1,-1, 1,-1,1,1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
             [1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1],
             [1,1,1,1,1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, 1,1,1,1,1],
-            [1,1,1,1,1, -1,-1,-1,1,-1, -1,-1,-1,1,-1, 1,-1,-1,1,-1, 1,1,1,-1,-1],
+            [1,1,1,1,1, -1,-1,-1,1,-1, -1,-1,-1,1,-1, 1,-1,-1,1,-1, 1,1,1,1,-1],
             [1,-1,-1,-1,1, 1,-1,-1,1,-1, 1,1,1,-1,-1, 1,-1,-1,1,-1, 1,-1,-1,-1,1],
             [1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,1,1,1,1],
             [1,-1,-1,-1,1, 1,1,-1,1,1, 1,-1,1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1],
             [1,-1,-1,-1,1, 1,1,-1,-1,1, 1,-1,1,-1,1, 1,-1,-1,1,1, 1,-1,-1,-1,1],
             [1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
             [1,1,1,1,1, 1,-1,-1,-1,1, 1,1,1,1,1, 1,-1,-1,-1,-1, 1,-1,-1,-1,-1],
-            [1,1,1,1,-1, 1,-1,-1,1,-1, 1,-1,-1,1,-1, 1,1,1,1,-1, -1,-1,-1,-1,1],
+            [1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,1,1, 1,1,1,1,1],
             [1,1,1,1,1, 1,-1,-1,-1,1, 1,1,1,1,1, 1,-1,-1,1,-1, 1,-1,-1,-1,1],
             [1,1,1,1,1, 1,-1,-1,-1,-1, 1,1,1,1,1, -1,-1,-1,-1,1, 1,1,1,1,1],
             [1,1,1,1,1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1],
             [1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
             [1,-1,-1,-1,1, 1,-1,-1,-1,1, -1,1,-1,1,-1, -1,1,-1,1,-1, -1,-1,1,-1,-1],
             [1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,1,-1,1, 1,1,-1,1,1],
-            [1,-1,-1,-1,1, -1,1,-1,1,-1, -1,-1,1,-1,-1, -1,1,-1,1,-1, 1,-1,-1,-1,1],
+            [1,-1,-1,-1,1, -1,1,-1,1,-1, -1,-1, 1,-1,-1, -1, 1, -1, 1, -1, 1,-1,-1,-1,1],
             [1,-1,-1,-1,1, -1,1,-1,1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1],
             [1,1,1,1,1, -1,-1,-1,1,-1, -1,-1,1,-1,-1, -1,1,-1,-1,-1, 1,1,1,1,1]
             ]
 alphabet_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
                   'p','q','r','s','t','u','v','w','x','y','z']
 
-#TODO: Revisar la K
+similar_letters = [alphabet[2], alphabet[4], alphabet[6], alphabet[14]] # c,e,g,o
+orthogonal_letters = [alphabet[14], alphabet[-3], alphabet[10], alphabet[-5]] # o, x, k, v
 
 def pickLetters():
     lettersReturn = np.empty((N_LETTERS,25), dtype=int)
@@ -52,18 +53,8 @@ def pickLetters():
         print(f'Letra pickeada: {alphabet_chars[p]}, ({lettersReturn[i]})')
     return lettersReturn
 
-#def calculateOrthogonality(matrix):
-#    orth = 0
-#    lastVector = None
-#    for i in range(0, len(matrix)-1):
-#        orth += np.dot(matrix[i], matrix[i+1])
-#        lastVector =
-
 def calculateWeights(letters):
     matrix = np.zeros((len(letters[0]), len(letters[0])))
-    #matrix = [[de 25], [de 25], ... , [de 25]]
-#TODO
-
     # Las entradas son las letters[i] (osea los E_i)
     for i in range(0, len(letters[0])):
         for j in range(i, len(letters[0])):
@@ -106,23 +97,29 @@ def printLetter(letter):
                 str = str + ' '
         print(str)
 
-def hopfield(name):
-    letters = pickLetters()
-    # Aca me cree la función pickLetters para que sea random, pero es cierto
-#    ort = calculateOrthogonality(letters)
-# TODO: calculatOrthogonality(letters)
+def printLetterHeatmap(letter):
+    data = [letter[0:5], letter[5:10], letter[10:15], letter[15:20], letter[20:25]]
+    plt.figure(figsize=(10, 10))
+    heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens")
+    plt.show()
 
-    # ya pickee las letras
+def hopfield(name):
+    #letters = pickLetters()
+    letters = orthogonal_letters
+
+    # ya pickee las letras    matched = 0
     weights = calculateWeights(letters)
-    #print(weights)
     aux1 = pickRandomLetterFromPatterns(letters)
     originalLetter = np.copy(aux1)
     inputValue = randomLetterWithNoise(aux1)
-    #print(f'Letra con ruido: {inputValue}')
     prevState = inputValue
     actualState = np.zeros(len(prevState))
     iterations = 0
 
+    #printLetterHeatmap(prevState)
+
+    matched = 0
+    counter = 0
     while np.array_equal(prevState,actualState) == False:
         for i in range(0, len(inputValue)):
             sum = 0
@@ -131,34 +128,42 @@ def hopfield(name):
                     sum += weights[i][j]*prevState[j]
             h_i = int(np.sign(sum)) if sum != 0 else 0
             actualState[i] = h_i
-        data = [actualState[0:5], actualState[5:10], actualState[10:15], actualState[15:20], actualState[20:25]]
-        plt.figure(figsize=(10, 10))
-        heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens")
-        plt.show()
+        #printLetterHeatmap(actualState)
+
         if np.array_equal(prevState,actualState):
             #print(f'Patrón matcheado: {actualState}')
             break
         else:
             prevState = actualState
             actualState = np.zeros(len(prevState))
+        counter += 1
+        if counter >= 5:
+            print(f'Itere mucho. Mi letra actual es: {prevState}')
+            break
         #print(actualState)
     actualState = actualState.astype(int)
-    print(f'ActualState: {actualState}')
-    print(f'OriginalLetter: {originalLetter}')
+    #print(f'ActualState: {actualState}')
+    #print(f'OriginalLetter: {originalLetter}')
 
-    print('Resultado de Hopfield: ')
-    printLetter(actualState)
-    print('Resultado de letra original: ')
-    printLetter(originalLetter)
+    #print('Letra input con ruido: ')
+    #printLetter(inputValue)
+    #print('Resultado de Hopfield: ')
+    #printLetter(actualState)
+    #print('Resultado de letra original: ')
+    #printLetter(originalLetter)
 
     if np.array_equal(originalLetter,actualState):
         print('Se devolvió el patrón correcto')
+        matched = 1
     else:
         print('Se devolvió el patrón incorrecto')
-
+    return matched
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    hopfield('PyCharm')
-
+    iterations = 500
+    hits = 0
+    for i in range(0, iterations):
+        hits += hopfield("hola")
+    print(f'Hits/Totales: {hits}/{iterations}')
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
