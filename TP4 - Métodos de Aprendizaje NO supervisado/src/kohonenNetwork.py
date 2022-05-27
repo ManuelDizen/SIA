@@ -30,21 +30,28 @@ class kohonenNetwork:
         n = self.learnRate_0
         while k < self.iterations:
             idx = random.randint(0, len(inputs))
-            x, y = self.findBestCandidate(inputs[idx], labels[idx])
+            x, y = self.findBestCandidate(inputs[idx])
             self.updateNeighbours(x, y, self.grid, r, n, inputs[idx])
             k, r, n = self.updateParameters(k)
+            
+    def test(self, inputs, labels):
 
-    def findBestCandidate(self, candidate, name):
+        for i in range(len(inputs)):
+            x, y = self.findBestCandidate(inputs[i])
+            self.grid[x][y].addEntry(labels[i])
+
+    def findBestCandidate(self, candidate):
         distance = np.Infinity
         bestX = -1
         bestY = -1
         for x in range(0, self.k):
             for y in range(0, self.k):
-                if self.grid[x][y].distanceTo(candidate) < distance:
-                    distance = self.grid[x][y].distanceTo(candidate)
+                current = self.grid[x][y].distanceTo(candidate)
+                if current < distance:
+                    distance = current
                     bestX = x
                     bestY = y
-        self.grid[bestX][bestY].addEntry(name)
+        
         return bestX, bestY
 
     def updateNeighbours(self, x, y, grid, r, n, input):
@@ -59,7 +66,8 @@ class kohonenNetwork:
         iters += 1
         learnRate = self.learnRate_0
         if not self.learnRateConstant:
-            learnRate = (0.7 - self.learnRate_0) / self.iterations * iters + self.learnRate_0
-        r = int((1 - self.r_0) / self.iterations * iters) + self.r_0
+            learnRate =  self.learnRate_0 - ((1 - self.learnRate_0) / self.iterations * iters)
+        r = int((1/self.r_0 - self.r_0) * (((iters / self.iterations))**0.5)) + self.r_0
+        #  print(f'i: {iters} -> new r: {r}, new n = {learnRate}')
         return iters, r, learnRate
         # update r_0 and n_0
