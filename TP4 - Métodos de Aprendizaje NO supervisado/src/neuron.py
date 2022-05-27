@@ -13,3 +13,6 @@ class neuron:
     def addEntry(self, name):
         self.matched += 1
         self.entriesMatched.append(name)
+        
+    def __str__(self):
+        return f'weights = {self.weights}'
