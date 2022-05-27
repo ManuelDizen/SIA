@@ -1,7 +1,8 @@
 import pandas as pd
 
 import plotting
-from src.kohonenNetwork import kohonenNetwork
+from src.kohonenNetwork import *
+from src.pairs import *
 from sklearn.preprocessing import StandardScaler
 from plotting import *
 
