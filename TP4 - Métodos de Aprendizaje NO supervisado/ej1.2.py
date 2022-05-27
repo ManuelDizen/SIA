@@ -52,15 +52,5 @@ ax.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 #plt.legend(loc='best')
 plt.show()
 
-total = []
-for i in range(0, len(inputs)):
-    sum = 0
-    for j in range(0, len(inputs[i])):
-        sum += inputs[i][j] * columns[j]
-    total.append(sum)
-
-sum2 = np.sum(total)
-print(f'sum2 = {sum2}')
-
 
 
