@@ -4,7 +4,7 @@ import plotting
 from src.kohonenNetwork import *
 from src.pairs import *
 from sklearn.preprocessing import StandardScaler
-from plotting import *
+import plotting
 
 df = pd.read_csv("europe.csv")
 
