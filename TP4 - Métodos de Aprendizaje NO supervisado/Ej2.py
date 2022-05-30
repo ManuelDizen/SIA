@@ -100,18 +100,22 @@ def printLetter(letter):
 def printLetterHeatmap(letter):
     data = [letter[0:5], letter[5:10], letter[10:15], letter[15:20], letter[20:25]]
     plt.figure(figsize=(10, 10))
-    heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens")
+    heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens", cbar=False)
     plt.show()
 
 def hopfield():
-    #letters = orthogonal_letters
-    letters = similar_letters
+    letters = orthogonal_letters
+    #letters = similar_letters
     weights = calculateWeights(letters)
     aux1 = pickRandomLetterFromPatterns(letters)
     originalLetter = np.copy(aux1)
     inputValue = randomLetterWithNoise(aux1)
     prevState = inputValue
     actualState = np.zeros(len(prevState))
+
+    if point == 2:
+        printLetterHeatmap(prevState)
+
     matched = 0
     counter = 0
     while np.array_equal(prevState,actualState) == False and counter <= 10:
@@ -122,7 +126,8 @@ def hopfield():
                     sum += weights[i][j]*prevState[j]
             h_i = int(np.sign(sum)) if sum != 0 else 0
             actualState[i] = h_i
-
+        if point == 2:
+            printLetterHeatmap(actualState)
         if np.array_equal(prevState,actualState):
             break
         else:
@@ -140,6 +145,7 @@ def hopfield():
 iterations = 20
 hits = 0
 sum = 0
+point = 2
 if point == 1:
     for i in range(0, len(orthogonal_letters)-1):
         for j in range(i+1, len(orthogonal_letters)):
@@ -169,4 +175,5 @@ if point == 1:
     plt.title("Probabilidad de alteración contra aciertos")
     plt.show()
 else:
-    
+    EPSILON_NOISE = 0.5
+    hopfield()
