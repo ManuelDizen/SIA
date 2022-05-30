@@ -3,7 +3,7 @@ import numpy as np
 import random
 import seaborn as sns
 
-EPSILON_NOISE = 0.5
+EPSILON_NOISE = 0.1
 N_LETTERS = 4
 
 alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
@@ -16,7 +16,7 @@ alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
             [1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1],
             [1,1,1,1,1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, -1,-1,1,-1,-1, 1,1,1,1,1],
             [1,1,1,1,1, -1,-1,-1,1,-1, -1,-1,-1,1,-1, 1,-1,-1,1,-1, 1,1,1,1,-1],
-            [1,-1,-1,-1,1, 1,-1,-1,1,-1, 1,1,1,-1,-1, 1,-1,-1,1,-1, 1,-1,-1,-1,1],
+            [1,-1,-1,1,-1, 1,-1,1,-1,-1, 1,1,-1,-1,-1, 1,-1,1,-1,-1, 1,-1,-1,1,-1],
             [1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,-1,-1,-1,-1, 1,1,1,1,1],
             [1,-1,-1,-1,1, 1,1,-1,1,1, 1,-1,1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1],
             [1,-1,-1,-1,1, 1,1,-1,-1,1, 1,-1,1,-1,1, 1,-1,-1,1,1, 1,-1,-1,-1,1],
@@ -36,7 +36,7 @@ alphabet = [[1,1,1,1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,-1,-1,-1,1, 1,1,1,1,1],
 alphabet_chars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
                   'p','q','r','s','t','u','v','w','x','y','z']
 
-similar_letters = [alphabet[2], alphabet[4], alphabet[6], alphabet[14]] # c,e,g,o
+similar_letters = [alphabet[16], alphabet[4], alphabet[6], alphabet[14]] # q,e,g,o
 orthogonal_letters = [alphabet[14], alphabet[-3], alphabet[10], alphabet[-5]] # o, x, k, v
 
 def pickLetters():
@@ -80,7 +80,7 @@ def randomLetterWithNoise(selected):
 def pickRandomLetterFromPatterns(letters):
     n = random.randint(0, len(letters)-1)
     selected = letters[n]
-    print("\n" + f'Letra seleccionada: {selected}')
+    #print("\n" + f'Letra seleccionada: {selected}')
     return selected
 
 def printLetter(letter):
@@ -103,24 +103,18 @@ def printLetterHeatmap(letter):
     heat_map = sns.heatmap(data, linewidth=1, annot=False, cmap="Greens")
     plt.show()
 
-def hopfield(name):
-    #letters = pickLetters()
-    letters = orthogonal_letters
-
-    # ya pickee las letras    matched = 0
+def hopfield():
+    #letters = orthogonal_letters
+    letters = similar_letters
     weights = calculateWeights(letters)
     aux1 = pickRandomLetterFromPatterns(letters)
     originalLetter = np.copy(aux1)
     inputValue = randomLetterWithNoise(aux1)
     prevState = inputValue
     actualState = np.zeros(len(prevState))
-    iterations = 0
-
-    #printLetterHeatmap(prevState)
-
     matched = 0
     counter = 0
-    while np.array_equal(prevState,actualState) == False:
+    while np.array_equal(prevState,actualState) == False and counter <= 10:
         for i in range(0, len(inputValue)):
             sum = 0
             for j in range(0, len(inputValue)):
@@ -128,42 +122,51 @@ def hopfield(name):
                     sum += weights[i][j]*prevState[j]
             h_i = int(np.sign(sum)) if sum != 0 else 0
             actualState[i] = h_i
-        #printLetterHeatmap(actualState)
 
         if np.array_equal(prevState,actualState):
-            #print(f'Patrón matcheado: {actualState}')
             break
         else:
             prevState = actualState
             actualState = np.zeros(len(prevState))
         counter += 1
-        if counter >= 5:
-            print(f'Itere mucho. Mi letra actual es: {prevState}')
-            break
-        #print(actualState)
     actualState = actualState.astype(int)
-    #print(f'ActualState: {actualState}')
-    #print(f'OriginalLetter: {originalLetter}')
-
-    #print('Letra input con ruido: ')
-    #printLetter(inputValue)
-    #print('Resultado de Hopfield: ')
-    #printLetter(actualState)
-    #print('Resultado de letra original: ')
-    #printLetter(originalLetter)
 
     if np.array_equal(originalLetter,actualState):
-        print('Se devolvió el patrón correcto')
         matched = 1
-    else:
-        print('Se devolvió el patrón incorrecto')
     return matched
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    iterations = 500
-    hits = 0
-    for i in range(0, iterations):
-        hits += hopfield("hola")
-    print(f'Hits/Totales: {hits}/{iterations}')
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+#        MAIN START
+iterations = 20
+hits = 0
+sum = 0
+if point == 1:
+    for i in range(0, len(orthogonal_letters)-1):
+        for j in range(i+1, len(orthogonal_letters)):
+            if i != j:
+                sum += np.dot(orthogonal_letters[i], orthogonal_letters[j])
+    print(f'sum={sum}, num = {((len(similar_letters)-1)**2)}\nAvg orthogonality: {sum/((len(similar_letters)-1)**2)}')
+    noise_values = [0.001, 0.01, 0.1, 0.25, 0.5]
+    strings = ["%.3f" % number for number in noise_values]
+    print(strings)
+    noise_results = []
+    for n in range(0, len(noise_values)):
+        EPSILON_NOISE = noise_values[n]
+        for i in range(0, iterations):
+            hits += hopfield()
+        print(f'\nHits/Totales con ruido {EPSILON_NOISE}: {hits}/{iterations}')
+        noise_results.append((hits/iterations))
+        hits = 0
+
+
+    fig = plt.figure(figsize = (12,8))
+    plt.bar(strings, noise_results, color ='seagreen',
+            width = 0.5)
+    aux = plt.gca()
+    aux.set_ylim(0,1)
+    plt.xlabel("Probabilidad de alteración de Xi")
+    plt.ylabel("Porcentaje de aciertos (%)")
+    plt.title("Probabilidad de alteración contra aciertos")
+    plt.show()
+else:
+    
