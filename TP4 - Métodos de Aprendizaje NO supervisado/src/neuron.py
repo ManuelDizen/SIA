@@ -14,5 +14,10 @@ class neuron:
         self.matched += 1
         self.entriesMatched.append(name)
         
+    def clear(self):
+        self.matched = 0
+        self.entriesMatched = []
+        self.inputsMatched = []        
+   
     def __str__(self):
         return f'weights = {self.weights}'
