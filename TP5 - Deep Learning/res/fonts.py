@@ -38,3 +38,19 @@ font_3 = np.array([
    [0x08, 0x15, 0x02, 0x00, 0x00, 0x00, 0x00],   # 0x7e, ~
    [0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f, 0x1f]   # 0x7f, DEL
    ])
+
+
+def to_bin_array(encoded_caracter):
+   bin_array = np.zeros((7, 5), dtype=int)
+   for row in range(0, 7):
+      current_row = encoded_caracter[row]
+      for col in range(0, 5):
+         bin_array[row][4 - col] = current_row & 1
+         current_row >>= 1
+   return bin_array
+
+def parse_letters_to_int(letter_array):
+   output = np.empty((len(letter_array), np.size(letter_array[0])*5), dtype=int)
+   for i in range(0,len(letter_array)):
+      output[i] = to_bin_array(letter_array[i]).flatten()
+   return output
