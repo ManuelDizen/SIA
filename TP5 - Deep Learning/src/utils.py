@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def printLetter(letter):
     arr = np.array(letter)
@@ -12,3 +13,12 @@ def printLetter(letter):
             else:
                 str = str + ' '
         print(str)
+
+def graph_digits(original, output):
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    for i in range(len(output)):
+        ax1.set_title('Original')
+        ax2.set_title('AE result')
+        ax1.imshow(np.array(original[i-1]).reshape((7, 5)), cmap='gray')
+        ax2.imshow(np.array(output[i-1]).reshape((7, 5)), cmap='gray')
+        fig.show()

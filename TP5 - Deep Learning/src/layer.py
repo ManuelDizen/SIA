@@ -2,11 +2,15 @@ import numpy as np
 
 
 class Layer:
-
     def __init__(self, inputCount, inputSize):
+        self.input = inputSize
+        self.output = inputCount
         self.weights = 2 * np.random.random((inputSize, inputCount)) - 1
         self.bias = 2 * np.random.random(inputCount) - 1
         self.derivativeError = None
+
+    def getWeights(self):
+        return np.array(self.weights)
 
     def error(self, inherited_error, derivative, activation):
         self.derivativeError = inherited_error * derivative(activation)

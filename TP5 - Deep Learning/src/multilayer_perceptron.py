@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class MultilayerPerceptron:
     def __init__(self, layers, function, derivative, learnRate):
         self.layers = layers
@@ -8,11 +9,8 @@ class MultilayerPerceptron:
         self.learnRate = learnRate
 
 
-    def algorithm(self, trainData, expectedOutput, testData, expectedTest, maxIters):
+    def algorithm(self, trainData, expectedOutput, maxIters):
         errors = []
-        errorsTest = []
-        accuraciesTrain = []
-        accuraciesTest = []
         for i in range(maxIters):
             for j in range(len(trainData)):
                 # Propago la entrada
@@ -26,13 +24,10 @@ class MultilayerPerceptron:
                 #Retropropago delta
                 for k in range(len(self.layers)):
                     self.layers[k].delta(activations[k], self.learnRate)
-            auxerror, correct = self.error(trainData, expectedOutput)
+            auxerror = self.error(trainData, expectedOutput)
             errors.append(auxerror)
-            accuraciesTrain.append(correct/len(trainData))
-            auxerror, correct = self.error(testData, expectedTest)
-            errorsTest.append(auxerror)
-            accuraciesTest.append(correct/len(testData))
-        return errors, accuraciesTrain, accuraciesTest, errorsTest
+        aux = self.layers[len(self.layers)-1].getWeights()
+        return errors, aux
 
     def activate(self, inputs):
         activations = [inputs]
@@ -44,14 +39,11 @@ class MultilayerPerceptron:
     def error(self, trainData, expectedOutput):
         # Calculo el error
         error = 0
-        correct = 0
         for pos in range(trainData.shape[0]):
             estimation = self.activate(trainData[pos])[-1]
             auxerror = (expectedOutput[pos] - estimation) * (expectedOutput[pos] - estimation)
             error += auxerror
-            if auxerror < 0.01:
-                correct += 1
-        return np.sum(error)/trainData.shape[0], correct
+        return np.sum(error)/trainData.shape[0]
 
     def estimations(self, trainData):
         est = []
