@@ -6,11 +6,14 @@ from res.fonts import *
 from src.utils import *
 
 x = np.array(get_input(1))
-text_names = get_header(1)
+x = [x[6], x[11], x[19], x[9], x[10]]
+x = np.array(x)
 
 x_mean = np.mean(x, axis=0)
 x_std = np.std(x, axis=0)
 
+x_noise = noise(x)
+x_noise2 = noise(x)
 x = transform(x)
 
 layer1 = Layer(20, 35, activation="tanh")
@@ -24,27 +27,15 @@ layers = [layer1, layer3, layer4, layer6]
 
 encoderDecoder = MultilayerPerceptron(layers, init_layers=True, momentum=True, eta=0.0005)
 
-min_error, errors, epochs, training_accuracies = encoderDecoder.train(x, x, iterations_qty=10000, adaptative_eta=False)
+min_error, errors, epochs, training_accuracies = encoderDecoder.train(x_noise, x, iterations_qty=10000, adaptative_eta=True)
 print(min_error)
 
 encoder = MultilayerPerceptron(encoderDecoder.neuron_layers[0:int(len(layers)/2)], init_layers=False)
 
 decoder = MultilayerPerceptron(encoderDecoder.neuron_layers[int(len(layers)/2):], init_layers=False)
 
-aux_1 = []
-aux_2 = []
-
 for i in range(len(x)):
-    to_predict = x[i, :]
+    to_predict = x_noise2[i, :]
     encoded = encoder.predict(to_predict)
     decoded = decoder.predict(encoded)
     graph_digits(to_predict, decoded)
-    aux_1.append(encoded[0])
-    aux_2.append(encoded[1])
-
-plt.xlim([-1.1, 1.1])
-plt.ylim([-1.1, 1.1])
-for i, txt in enumerate(text_names):
-    plt.annotate(txt, (aux_1[i], aux_2[i]))
-plt.scatter(aux_1, aux_2)
-plt.show()
