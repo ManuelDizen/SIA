@@ -2,9 +2,10 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
-from src.utils import Sampling
+from src.utils import *
 
 class VariationalAutoencoder(keras.Model):
+
     def __init__(self, **kwargs):
         super(VariationalAutoencoder, self).__init__(**kwargs)
         latent = 2
@@ -15,7 +16,7 @@ class VariationalAutoencoder(keras.Model):
         x = layers.Dense(16, activation="relu")(x)
         z_mean = layers.Dense(latent, name="z_mean")(x)
         z_log_var = layers.Dense(latent, name="z_log_var")(x)
-        z = Sampling()([z_mean, z_log_var])
+        z = getSample(z_mean, z_log_var)
 
         self.encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
 
@@ -25,18 +26,16 @@ class VariationalAutoencoder(keras.Model):
         x = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(x)
         x = layers.Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")(x)
         outputs = layers.Conv2DTranspose(1, 3, activation="sigmoid", padding="same")(x)
+
         self.decoder = keras.Model(latInputs, outputs, name="decoder")
+
         self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.reconstruction_loss_tracker = keras.metrics.Mean(name="reconstruction_loss")
         self.kl_loss_tracker = keras.metrics.Mean(name="kl_loss")
 
-    @property
-    def metrics(self):
-        return [
-            self.total_loss_tracker,
-            self.reconstruction_loss_tracker,
-            self.kl_loss_tracker,
-        ]
+    def train(self, trainset):
+        self.compile(optimizer=keras.optimizers.Adam())
+        self.fit(trainset, epochs=1, batch_size=100)
 
     def train_step(self, data):
         with tf.GradientTape() as tape:
@@ -63,6 +62,10 @@ class VariationalAutoencoder(keras.Model):
             "kl_loss": self.kl_loss_tracker.result(),
         }
 
-    def train(self, trainset):
-        self.compile(optimizer=keras.optimizers.Adam())
-        self.fit(trainset, epochs=1, batch_size=100)
+    @property
+    def metrics(self):
+        return [
+            self.total_loss_tracker,
+            self.reconstruction_loss_tracker,
+            self.kl_loss_tracker,
+        ]
