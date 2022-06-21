@@ -1,4 +1,5 @@
 from tensorflow import keras
+
 from src.variational_autoencoder import VariationalAutoencoder
 from src.plotting import *
 
