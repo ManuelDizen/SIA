@@ -11,8 +11,8 @@ vae = VariationalAutoencoder()
 vae.compile(optimizer=keras.optimizers.Adam())
 vae.fit(mnist_digits, epochs=1, batch_size=128)
 
-plot_latent_space(vae)
+plotLatent(vae)
 
 x_train = np.expand_dims(x_train, -1).astype("float32") / 255
 
-plot_label_clusters(vae, x_train, y_train)
+plotAverages(vae, x_train, y_train)

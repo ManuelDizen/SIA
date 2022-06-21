@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_latent_space(vae, n=10, figsize=15, digit_size=28):
+def plotLatent(vae, n=10, figsize=15, digit_size=28):
     figure = np.zeros((digit_size * n, digit_size * n))
     grid_x = np.linspace(-1.0, 1.0, n)
     grid_y = np.linspace(-1.0, 1.0, n)[::-1]
@@ -29,10 +29,10 @@ def plot_latent_space(vae, n=10, figsize=15, digit_size=28):
     plt.show()
 
 
-def plot_label_clusters(vae, data, labels):
-    z_mean, _, _ = vae.encoder.predict(data)
+def plotAverages(vae, data, labels):
+    avg = vae.encoder.predict(data)
     colormap = plt.cm.get_cmap('plasma')
     plt.figure(figsize=(12, 10))
-    sc = plt.scatter(z_mean[:, 0], z_mean[:, 1], c=labels, cmap=colormap)
+    sc = plt.scatter(avg[:, 0], avg[:, 1], c=labels, cmap=colormap)
     plt.colorbar(sc)
     plt.show()

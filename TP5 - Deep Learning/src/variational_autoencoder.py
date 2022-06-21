@@ -76,3 +76,7 @@ class VariationalAutoencoder(keras.Model):
             "reconstruction_loss": self.reconstruction_loss_tracker.result(),
             "kl_loss": self.kl_loss_tracker.result(),
         }
+
+    def train(self, trainset):
+        self.compile(optimizer=keras.optimizer.Adam())
+        self.fit(trainset, epochs=1, batch_size=100)
