@@ -9,25 +9,8 @@ class VariationalAutoencoder(keras.Model):
     def __init__(self, **kwargs):
         super(VariationalAutoencoder, self).__init__(**kwargs)
         latent = 2
-        encoder_inputs = keras.Input(shape=(28, 28, 1)) #Esperamos que el input sean de 28x28x1
-        x = layers.Conv2D(32, 3, activation="relu", strides=2, padding="same")(encoder_inputs)
-        x = layers.Conv2D(64, 3, activation="relu", strides=2, padding="same")(x)
-        x = layers.Flatten()(x)
-        x = layers.Dense(16, activation="relu")(x)
-        z_mean = layers.Dense(latent, name="z_mean")(x)
-        z_log_var = layers.Dense(latent, name="z_log_var")(x)
-        z = getSample(z_mean, z_log_var)
-
-        self.encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
-
-        latInputs = keras.Input(shape=(latent,))
-        x = layers.Dense(7 * 7 * 64, activation="relu")(latInputs)
-        x = layers.Reshape((7, 7, 64))(x)
-        x = layers.Conv2DTranspose(64, 3, activation="relu", strides=2, padding="same")(x)
-        x = layers.Conv2DTranspose(32, 3, activation="relu", strides=2, padding="same")(x)
-        outputs = layers.Conv2DTranspose(1, 3, activation="sigmoid", padding="same")(x)
-
-        self.decoder = keras.Model(latInputs, outputs, name="decoder")
+        self.initiateEncoder(latent)
+        self.initiateDecoder(latent)
 
         self.total_loss_tracker = keras.metrics.Mean(name="total_loss")
         self.reconstruction_loss_tracker = keras.metrics.Mean(name="reconstruction_loss")
@@ -36,6 +19,28 @@ class VariationalAutoencoder(keras.Model):
     def train(self, trainset):
         self.compile(optimizer=keras.optimizers.Adam())
         self.fit(trainset, epochs=1, batch_size=100)
+
+    def initiateDecoder(self, latent):
+        latInputs = keras.Input(shape=(latent,))
+        x = layers.Dense(7 * 7 * 64, activation="relu")(latInputs)
+        x = layers.Reshape((7, 7, 64))(x)
+        x = layers.Conv2DTranspose(20, 3, activation="relu", strides=2, padding="same")(x)
+        x = layers.Conv2DTranspose(10, 3, activation="relu", strides=2, padding="same")(x)
+        outputs = layers.Conv2DTranspose(1, 3, activation="sigmoid", padding="same")(x)
+
+        self.decoder = keras.Model(latInputs, outputs, name="decoder")
+
+    def initiateEncoder(self, latent):
+        encoder_inputs = keras.Input(shape=(28, 28, 1))  # Esperamos que el input sean de 28x28x1
+        x = layers.Conv2D(10, 3, activation="relu", strides=2, padding="same")(encoder_inputs)
+        x = layers.Conv2D(20, 3, activation="relu", strides=2, padding="same")(x)
+        x = layers.Flatten()(x)
+        x = layers.Dense(16, activation="relu")(x)
+        z_mean = layers.Dense(latent, name="z_mean")(x)
+        z_log_var = layers.Dense(latent, name="z_log_var")(x)
+        z = getSample(z_mean, z_log_var)
+
+        self.encoder = keras.Model(encoder_inputs, [z_mean, z_log_var, z], name="encoder")
 
     def train_step(self, data):
         with tf.GradientTape() as tape:

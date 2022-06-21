@@ -12,4 +12,4 @@ plotLatent(vae)
 trainset = np.expand_dims(x_train, -1).astype("float32") / 255
 trainoutputset = np.concatenate([y_train, y_test]).astype("float32") / 255
 trainoutputset = np.expand_dims(trainoutputset, -1).astype("float32") / 255
-plotAverages(vae, trainset, trainoutputset)
+plotAverages(vae, trainset, y_train)

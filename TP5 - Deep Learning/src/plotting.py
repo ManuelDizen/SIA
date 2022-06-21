@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def plotAverages(vae, data, labels):
-    avg = vae.encoder.predict(data)
+    avg,_,_ = vae.encoder.predict(data)
     colormap = plt.cm.get_cmap('plasma')
     plt.figure(figsize=(12, 10))
     sc = plt.scatter(avg[:, 0], avg[:, 1], c=labels, cmap=colormap)
@@ -17,8 +17,8 @@ def plotLatent(vae, n=10, figsize=15, digit_size=28):
     for i, yi in enumerate(grid_y):
         for j, xi in enumerate(grid_x):
             z = np.array([[xi, yi]])
-            x_decoded = vae.decoder.predict(z)
-            digit = x_decoded[0].reshape(digit_size, digit_size)
+            output = vae.decoder.predict(z)
+            digit = output[0].reshape(digit_size, digit_size)
             figure[
             i * digit_size: (i + 1) * digit_size,
             j * digit_size: (j + 1) * digit_size,
