@@ -4,7 +4,7 @@ from res.fonts import *
 import random
 import tensorflow as tf
 from tensorflow import keras
-from tensorflow.keras import layers
+from keras import layers
 
 def print_letter(letter):
     test = np.array_split(letter, 5)
@@ -85,6 +85,7 @@ def noise(t):
                         aux.append(1)
         to_ret.append(aux)
     return np.array(to_ret)
+
 
 class Sampling(layers.Layer):
     """Uses (z_mean, z_log_var) to sample z, the vector encoding a digit."""
