@@ -7,7 +7,6 @@ from tensorflow import keras
 from tensorflow.keras import layers
 
 def print_letter(letter):
-    arr = np.array(letter)
     test = np.array_split(letter, 5)
     aux = len(test)
     for line in range(0, aux):
@@ -48,8 +47,6 @@ def get_input(font):
         return font_2_input
     elif font == 3:
         return font_3_input
-    #else:
-        #return fontcustom_input
 
 def get_header(font):
     if font == 1:
@@ -58,8 +55,6 @@ def get_header(font):
         return font_2_header
     elif font == 3:
         return font_3_header
-    #else:
-        #return fontcustom_input
 
 def get_output(font):
     if font == 1:
