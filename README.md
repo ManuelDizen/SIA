@@ -1,4 +1,7 @@
-# SIA
+# Sistemas de Inteligencia Artificial
+
+Repositorio utilizado para los trabajos prácticos de la materia "72.27 - Sistemas de Inteligencia Artificial"
+
 ## Trabajos prácticos:
 * :mag: TP1: [Métodos de busqueda](https://github.com/ManuelDizen/SIA/tree/main/TP1%20-%20Metodos%20de%20busqueda)
 * :link: TP2: [Algoritmos Genéticos](https://github.com/ManuelDizen/SIA/tree/main/TP2%20-%20Algoritmos%20Gen%C3%A9ticos)
